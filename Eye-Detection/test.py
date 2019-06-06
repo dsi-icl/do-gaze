@@ -4,7 +4,7 @@ import dlib
 
 path = 'C:\dlib-19.17.0\python_examples\Eye_only\\test'
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -28,9 +28,12 @@ while True:
             y = landmarks.part(n).y
             cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
 
-        eyes_position = frame[landmarks.part(21).y:landmarks.part(28).y,landmarks.part(36).x:landmarks.part(39).x]
+        eyes_position = frame[landmarks.part(21).y:landmarks.part(28).y,landmarks.part(36).x:landmarks.part(45).x]
 
+        cv2.imwrite("eyes.png", eyes_position)
     cv2.imshow("Frame", frame)
+
+    #break
 
     key = cv2.waitKey(1)
     if key == 27:
