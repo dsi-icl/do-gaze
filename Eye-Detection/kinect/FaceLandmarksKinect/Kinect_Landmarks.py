@@ -30,7 +30,9 @@ if __name__ == '__main__':
 
 	while True:
 		kinect.get_frame(frame)
+		kinect.get_depth_frame()
 		kinect.get_color_frame()
+		print(kinect._frameDepth)
 		image = kinect._frameRGB
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)

@@ -55,11 +55,18 @@ class AcquisitionKinect():
 	   self._frameRGB = self._frameRGB.reshape((1080, 1920,-1)).astype(np.uint8)
 	   self._frameRGB = cv2.resize(self._frameRGB, (0,0), fx=1/self.resolution_mode, fy=1/self.resolution_mode)
 
+	#Get depth from Frame
+	def get_depth_frame(self):
+		self._frameDepth = self._kinect.get_last_depth_frame()
+		self._frameDepth = self._frameDepth.reshape((424, 512, -1)).astype(np.uint8)
+		self._frameDepth = cv2.resize(self._frameDepth, (0,0), fx = 1/self.resolution_mode, fy=1/self.resolution_mode)
+
 	#Acquire the type of frame required
 	def acquireFrame(self):
 		if self._kinect.has_new_color_frame():
 			self.get_color_frame()
-
+		if self._kinect.has_new_depth_frame():
+			self.get_depth_frame()
 	def close(self):
 		self._kinect.close()
 		self._frameDepth = None
