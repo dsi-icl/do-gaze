@@ -58,7 +58,7 @@ class AcquisitionKinect():
 	#Get depth from Frame
 	def get_depth_frame(self):
 		self._frameDepth = self._kinect.get_last_depth_frame()
-		self._frameDepth = self._frameDepth.reshape((424, 512, -1)).astype(np.uint8)
+		self._frameDepth = self._frameDepth.reshape((1080, 1920, -1)).astype(np.uint8)
 		self._frameDepth = cv2.resize(self._frameDepth, (0,0), fx = 1/self.resolution_mode, fy=1/self.resolution_mode)
 
 	#Acquire the type of frame required
