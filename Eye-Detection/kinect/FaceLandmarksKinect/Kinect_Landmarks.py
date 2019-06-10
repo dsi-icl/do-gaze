@@ -73,8 +73,10 @@ if __name__ == '__main__':
 		(255, 0, 0), 2)
 		cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
 		(255, 0, 0), 2)
+		scale = np.array([512/1920, 424/1080])
 
-		print(frameDepth[512 * right_eye[1] + right_eye[0]])
+		right_eye_depth = np.array([int(right_eye[0], int(right_eye[1]))])
+		print(frameDepth[right_eye_depth[0], right_eye_depth[1]])
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
