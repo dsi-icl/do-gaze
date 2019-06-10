@@ -74,6 +74,7 @@ if __name__ == '__main__':
 		cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
 		(255, 0, 0), 2)
 
+		print(frameDepth[512 * right_eye[1] + right_eye[0]])
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
