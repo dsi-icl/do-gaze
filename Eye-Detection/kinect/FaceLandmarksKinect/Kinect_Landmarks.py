@@ -34,6 +34,14 @@ if __name__ == '__main__':
 		kinect.get_color_frame()
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
+		print("###################################################################")
+		print(frameDepth)
+		print("###################################################################")
+		print(np.amax(frameDepth))
+		print("###################################################################")
+		print(len(frameDepth[0]))
+		print("###################################################################")
+		print(len(frameDepth))
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 		#gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -91,6 +99,8 @@ if __name__ == '__main__':
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",depth)
+
+		np.savetxt("depth.csv", frameDepth, delimiter=",")
 
 		key = cv2.waitKey(1)
 		if key == 27:
