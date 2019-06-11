@@ -77,20 +77,20 @@ if __name__ == '__main__':
 		#right_eye_depth = np.array([int(preds[42,0]*scale[0]), int(preds[42,1]*scale[1])])
 		#print(frameDepth[right_eye_depth[1], right_eye_depth[0]])
 
-		depth = np.array([[(0,0,0) for i in range(512)] for j in range(424)])
+		depth = np.zeros([424,512,3])
 
 		for i in range(424):
 			for j in range(512):
 				depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
 
-		image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
-		overlay = depth
+		#image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
+		#overlay = depth
 		
-		cv2.addWeighted(overlay, alpha, image2, 0.2 , 0.8, output)
+		#cv2.addWeighted(overlay, alpha, image2, 0.2 , 0.8, output)
 		
 
 		if not image is None:
-			cv2.imshow("Output-Keypoints",output)
+			cv2.imshow("Output-Keypoints",depth)
 
 		key = cv2.waitKey(1)
 		if key == 27:
