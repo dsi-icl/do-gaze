@@ -34,7 +34,6 @@ if __name__ == '__main__':
 		kinect.get_color_frame()
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
-		print(len(frameDepth))
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 		#gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -75,8 +74,8 @@ if __name__ == '__main__':
 		(255, 0, 0), 2)
 		scale = np.array([512/1920, 424/1080])
 
-		right_eye_depth = np.array([int(right_eye[0], int(right_eye[1]))])
-		print(frameDepth[right_eye_depth[0], right_eye_depth[1]])
+		right_eye_depth = np.array([int(preds[27,0]*scale[0]), int(preds[27,1]*scale[1])])
+		print(frameDepth[right_eye_depth[1], right_eye_depth[0]])
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
