@@ -8,6 +8,7 @@ from acquisitionKinect import AcquisitionKinect
 from frame import Frame
 import face_alignment
 from skimage import io
+from rotation import Rotation
 
 """
 detector = dlib.get_frontal_face_detector()
@@ -32,7 +33,9 @@ if __name__ == '__main__':
 		kinect.get_frame(frame)
 		kinect.get_depth_frame()
 		kinect.get_color_frame()
+		kinect.get_camera_space_coord()
 		image = kinect._frameRGB
+		print(kinect.joint_points3D)
 		frameDepth = kinect._frameDepth
 		print("###################################################################")
 		print(frameDepth)
@@ -58,9 +61,24 @@ if __name__ == '__main__':
 		"""
 		preds = fa.get_landmarks(image)[-1]
 
+		h = int(np.linalg.norm(preds[45,:] - preds[36,:]))
+		v = int(np.linalg.norm(preds[27,:] - preds[51,:]))
+
+
+		w, x, y, z = preds[36,:], preds[45,:], preds[27,:], preds[51,:]
+		wp, xp, yp, zp = [-h//2, 0, 0], [h//2, 0, 0], [0, 100, 0], [0, 100 + v, 0]
+
+		print("w:", w, "x:", x, "y:", y, "z:", z)
+		print("wp:", wp, "xp:", xp, "yp:", yp, "zp:", zp)
+
+		rot = Rotation(w, x, y, z, wp, xp, yp, zp)
+		R, t = rot.rigid_transform_3D()
+
+		R_i = np.linalg.inv(R)
+
+
 		x = preds[45,:] - preds[36,:]
 		y = preds[27,:] - preds[51,:]
-
 
 		u = normv(x)
 		v = normv(y)
@@ -105,4 +123,6 @@ if __name__ == '__main__':
 		key = cv2.waitKey(1)
 		if key == 27:
 		   break
+
+		body_joint_to_depth_space
 		

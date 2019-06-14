@@ -61,6 +61,10 @@ class AcquisitionKinect():
 		self._frameDepth = self._frameDepth.reshape(((424, 512))).astype(np.uint16)
 		self._frameDepthQuantized = ((self._frameDepth.astype(np.int32)-500)/8.0).astype(np.uint8)
 
+	#Get Camera Coordinates from Joints
+	def get_camera_space_coord(self):
+		self.joint_points3D = self.kinect.body_joints_to_depth_space()
+
 	#Acquire the type of frame required
 	def acquireFrame(self):
 		if self._kinect.has_new_color_frame():
