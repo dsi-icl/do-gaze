@@ -8,7 +8,7 @@ from acquisitionKinect import AcquisitionKinect
 from frame import Frame
 import face_alignment
 from skimage import io
-from rotation import Rotation
+#from rotation import Rotation
 
 """
 detector = dlib.get_frontal_face_detector()
@@ -71,10 +71,10 @@ if __name__ == '__main__':
 		print("w:", w, "x:", x, "y:", y, "z:", z)
 		print("wp:", wp, "xp:", xp, "yp:", yp, "zp:", zp)
 
-		rot = Rotation(w, x, y, z, wp, xp, yp, zp)
-		R, t = rot.rigid_transform_3D()
+		#rot = Rotation(w, x, y, z, wp, xp, yp, zp)
+		#R, t = rot.rigid_transform_3D()
 
-		R_i = np.linalg.inv(R)
+		#R_i = np.linalg.inv(R)
 
 
 		x = preds[45,:] - preds[36,:]
