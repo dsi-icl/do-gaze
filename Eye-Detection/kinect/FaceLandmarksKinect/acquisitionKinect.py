@@ -68,7 +68,7 @@ class AcquisitionKinect():
 		for i in range(0, max_body_count):
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
-				self.joint_points3D = np.append(self.joint_points3D, self._kinect.body_joints_to_depth_space())
+				self.joint_points3D = np.append(self.joint_points3D, body.joints2)
 
 	#Acquire the type of frame required
 	def acquireFrame(self):
