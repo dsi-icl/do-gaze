@@ -37,14 +37,14 @@ if __name__ == '__main__':
 		image = kinect._frameRGB
 		print(kinect.joint_points3D)
 		frameDepth = kinect._frameDepth
-		print("###################################################################")
-		print(frameDepth)
-		print("###################################################################")
-		print(np.amax(frameDepth))
-		print("###################################################################")
-		print(len(frameDepth[0]))
-		print("###################################################################")
-		print(len(frameDepth))
+		#print("###################################################################")
+		#print(frameDepth)
+		#print("###################################################################")
+		#print(np.amax(frameDepth))
+		#print("###################################################################")
+		#print(len(frameDepth[0]))
+		#print("###################################################################")
+		#print(len(frameDepth))
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 		#gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 		
 
 		if not image is None:
-			cv2.imshow("Output-Keypoints",depth)
+			cv2.imshow("Output-Keypoints",image)
 
 		np.savetxt("depth.csv", frameDepth, delimiter=",")
 

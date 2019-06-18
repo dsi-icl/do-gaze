@@ -28,7 +28,7 @@ class AcquisitionKinect():
 		self._bodies = None
 		self.body_tracked = False
 		self.joint_points = np.array([])
-		self.joint_points3D = np.array([])
+		self.joint_points3D = np.array([[]])
 		self.joint_points_RGB = np.array([])
 		self.joint_state = np.array([])
 
@@ -68,7 +68,8 @@ class AcquisitionKinect():
 		for i in range(0, max_body_count):
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
-				self.joint_points3D = np.append(self.joint_points3D, body.joints2)
+				print(body.joints2[2][1])
+				#self.joint_points3D = np.append(self.joint_points3D, body.joints2)
 
 	#Acquire the type of frame required
 	def acquireFrame(self):
