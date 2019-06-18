@@ -33,9 +33,9 @@ if __name__ == '__main__':
 		kinect.get_frame(frame)
 		kinect.get_depth_frame()
 		kinect.get_color_frame()
-		kinect.get_camera_space_coord()
+		kinect.get_eye_camera_space_coord()
 		image = kinect._frameRGB
-		print(kinect.joint_points3D)
+		#print(kinect.joint_points3D)
 		frameDepth = kinect._frameDepth
 		#print("###################################################################")
 		#print(frameDepth)
@@ -68,13 +68,26 @@ if __name__ == '__main__':
 		w, x, y, z = preds[36,:], preds[45,:], preds[27,:], preds[51,:]
 		wp, xp, yp, zp = [-h//2, 0, 0], [h//2, 0, 0], [0, 100, 0], [0, 100 + v, 0]
 
-		print("w:", w, "x:", x, "y:", y, "z:", z)
-		print("wp:", wp, "xp:", xp, "yp:", yp, "zp:", zp)
+		"""
+		Projection of the gaze on the screens
+		"""
 
-		#rot = Rotation(w, x, y, z, wp, xp, yp, zp)
-		#R, t = rot.rigid_transform_3D()
+		rot = Rotation(w, x, y, z, wp, xp, yp, zp)
+		R, t = rot.rigid_transform_3D()
 
-		#R_i = np.linalg.inv(R)
+		R_i = np.linalg.inv(R)
+
+		dir_vector = kinect.joint_points3D
+		dir_vector_norm = np.linalg.norm(dir_vector)
+		dir_vector = np.dot(R_i, dir_vector/dir_vector_norm)
+
+		k = -kinect.joint_points3D[2]/(dir_vector)
+
+		cible = kinect.joint_points3D + k*dir_vector
+
+		print("Draw a point here !!", cible)
+
+		
 
 
 		x = preds[45,:] - preds[36,:]
@@ -98,16 +111,16 @@ if __name__ == '__main__':
 		(255, 0, 0), 2)
 		cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
 		(255, 0, 0), 2)
-		scale = np.array([512/1920, 424/1080])
+		#scale = np.array([512/1920, 424/1080])
 
 		#right_eye_depth = np.array([int(preds[42,0]*scale[0]), int(preds[42,1]*scale[1])])
 		#print(frameDepth[right_eye_depth[1], right_eye_depth[0]])
 
-		depth = np.zeros([424,512,3])
+		#depth = np.zeros([424,512,3])
 
-		for i in range(424):
-			for j in range(512):
-				depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
+		#for i in range(424):
+		#	for j in range(512):
+		#		depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
 
 		#image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
 		#overlay = depth
@@ -118,7 +131,7 @@ if __name__ == '__main__':
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
 
-		np.savetxt("depth.csv", frameDepth, delimiter=",")
+		#np.savetxt("depth.csv", frameDepth, delimiter=",")
 
 		key = cv2.waitKey(1)
 		if key == 27:

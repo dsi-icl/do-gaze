@@ -28,7 +28,7 @@ class AcquisitionKinect():
 		self._bodies = None
 		self.body_tracked = False
 		self.joint_points = np.array([])
-		self.joint_points3D = np.array([[]])
+		self.joint_points3D = np.array([])
 		self.joint_points_RGB = np.array([])
 		self.joint_state = np.array([])
 
@@ -62,14 +62,14 @@ class AcquisitionKinect():
 		self._frameDepthQuantized = ((self._frameDepth.astype(np.int32)-500)/8.0).astype(np.uint8)
 
 	#Get Camera Coordinates from Joints
-	def get_camera_space_coord(self):
+	def get_eye_camera_space_coord(self):
 		self._bodies = self._kinect.get_last_body_frame()
 		max_body_count = self._kinect.max_body_count
 		for i in range(0, max_body_count):
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
-				print(body.joints2[2][1])
-				#self.joint_points3D = np.append(self.joint_points3D, body.joints2)
+				#self.joint_points3D = np.append(self.joint_points3D,np.array([body.joints2[2][1]])) 
+				self.joint_points3D = np.array([body.joints2[2][1]])
 
 	#Acquire the type of frame required
 	def acquireFrame(self):
