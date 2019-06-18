@@ -35,7 +35,7 @@ if __name__ == '__main__':
 		kinect.get_color_frame()
 		kinect.get_eye_camera_space_coord()
 		image = kinect._frameRGB
-		#print(kinect.joint_points3D)
+		print(kinect.acquireCameraSpace())
 		frameDepth = kinect._frameDepth
 		#print("###################################################################")
 		#print(frameDepth)

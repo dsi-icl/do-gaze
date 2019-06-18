@@ -69,7 +69,12 @@ class AcquisitionKinect():
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
 				#self.joint_points3D = np.append(self.joint_points3D,np.array([body.joints2[2][1]])) 
-				self.joint_points3D = np.array([body.joints2[2][1]])
+				self.joint_points3D = np.array([body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]])
+
+	# Transform Color frame into Camera space points frame
+	def acquireCameraSpace(self):
+		Camera_frame = self._kinect.faces_points_to_camera_space_points()
+		return Camera_frame
 
 	#Acquire the type of frame required
 	def acquireFrame(self):
