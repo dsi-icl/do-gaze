@@ -8,7 +8,7 @@ from acquisitionKinect import AcquisitionKinect
 from frame import Frame
 import face_alignment
 from skimage import io
-#from rotation import Rotation
+from rotate.rotation import Rotation3d
 
 """
 detector = dlib.get_frontal_face_detector()
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 		Projection of the gaze on the screens
 		"""
 
-		rot = Rotation(w, x, y, z, wp, xp, yp, zp)
+		rot = Rotation3d(w, x, y, z, wp, xp, yp, zp)
 		R, t = rot.rigid_transform_3D()
 
 		R_i = np.linalg.inv(R)
