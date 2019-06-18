@@ -35,8 +35,9 @@ if __name__ == '__main__':
 		kinect.get_color_frame()
 		kinect.get_eye_camera_space_coord()
 		image = kinect._frameRGB
-		print(kinect.acquireCameraSpace())
 		frameDepth = kinect._frameDepth
+		#print(kinect.acquireCameraSpace())
+
 		#print("###################################################################")
 		#print(frameDepth)
 		#print("###################################################################")
@@ -111,16 +112,26 @@ if __name__ == '__main__':
 		(255, 0, 0), 2)
 		cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
 		(255, 0, 0), 2)
-		#scale = np.array([512/1920, 424/1080])
+		scale = np.array([512/1920, 424/1080])
 
 		#right_eye_depth = np.array([int(preds[42,0]*scale[0]), int(preds[42,1]*scale[1])])
 		#print(frameDepth[right_eye_depth[1], right_eye_depth[0]])
 
-		#depth = np.zeros([424,512,3])
+		depth = np.zeros([424,512,3])
 
-		#for i in range(424):
-		#	for j in range(512):
-		#		depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
+		for i in range(424):
+			for j in range(512):
+				depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
+
+		left_eye_d = np.array([int(left_eye[0]*scale[0]), int(left_eye[1]*scale[1])])
+		right_eye_d = np.array([int(right_eye[0]*scale[0]), int(right_eye[1]*scale[1])])
+		end_line_left_d = np.array([int(end_line_left[0]*scale[0]), int(end_line_left[1]*scale[1])])
+		end_line_right_d = np.array([int(end_line_right[0]*scale[0]), int(end_line_right[1]*scale[1])])
+
+		cv2.line(depth, (left_eye_d[0], left_eye_d[1]), (end_line_left_d[0], end_line_left_d[1]),
+		(255, 0, 0), 2)
+		cv2.line(depth, (right_eye_d[0], right_eye_d[1]), (end_line_right_d[0], end_line_right_d[1]),
+		(255, 0, 0), 2)
 
 		#image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
 		#overlay = depth
@@ -129,7 +140,7 @@ if __name__ == '__main__':
 		
 
 		if not image is None:
-			cv2.imshow("Output-Keypoints",image)
+			cv2.imshow("Output-Keypoints",depth)
 
 		#np.savetxt("depth.csv", frameDepth, delimiter=",")
 

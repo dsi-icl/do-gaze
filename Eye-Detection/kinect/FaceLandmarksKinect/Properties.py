@@ -15,7 +15,8 @@ if __name__ == '__main__':
 
 	while True:
 		kinect.get_frame(frame)
-        print(kinect._kinect.color_frame_desc.HorizontalFieldOfView, kinect._kinect.color_frame_desc.VerticalFieldOfView)
+		kinect.get_color_frame()
+		print(kinect._kinect.color_frame_desc.HorizontalFieldOfView, kinect._kinect.color_frame_desc.VerticalFieldOfView)
 		image = kinect._frameRGB
 
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
