@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from rotation import Rotation
+from rotate.rotation import Rotation3d
 
 fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._3D, flip_input=False)
 
@@ -35,7 +35,7 @@ wp, xp, yp, zp = [-h//2, 0, 0], [h//2, 0, 0], [0, 100, 0], [0, 100 + v, 0]
 print("w:", w, "x:", x, "y:", y, "z:", z)
 print("wp:", wp, "xp:", xp, "yp:", yp, "zp:", zp)
 
-rot = Rotation(w, x, y, z, wp, xp, yp, zp)
+rot = Rotation3d(w, x, y, z, wp, xp, yp, zp)
 R, t = rot.rigid_transform_3D()
 
 print(R)

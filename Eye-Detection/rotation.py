@@ -6,7 +6,7 @@ from math import sqrt
 # R = 3x3 rotation matrix
 # t = 3x1 column vector
 
-class Rotation:
+class Rotation3d:
     def __init__(self, w, x, y, z, wp, xp, yp, zp):
         self.A = array([w, x, y, z])
         self.B = array([wp, xp, yp, zp])
