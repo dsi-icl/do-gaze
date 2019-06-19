@@ -133,9 +133,22 @@ if __name__ == '__main__':
 		cv2.line(depth, (right_eye_d[0], right_eye_d[1]), (end_line_right_d[0], end_line_right_d[1]),
 		(255, 0, 0), 2)
 
+		"""
+		Points of interest
+		"""
+		# w,x,y,z are coordinates whereas w_d, x_d, y_d, z_d are the depth values of these coordinates
+		w, x, y, z = preds[36,0:2], preds[45,0:2], preds[27,0:2], preds[51,0:2]
+		w_d, x_d, y_d, z_d = frameDepth[w[1], w[0]], frameDepth[x[1], x[0]], frameDepth[y[1], y[0]], frameDepth[z[1], z[0]]
+
+		depthpoints = np.array([w,x,y,z])
+		depths = np.array([w_d,x_d,y_d,z_d])
+
 		#image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
 		#overlay = depth
 		
+		def depth_to_camera(self, depthpoint, depth):
+			return self._mapper.MapDepthPointToCameraSpace(depthpoint, depth)
+
 		#cv2.addWeighted(overlay, alpha, image2, 0.2 , 0.8, output)
 		
 

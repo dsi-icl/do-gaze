@@ -71,10 +71,14 @@ class AcquisitionKinect():
 				#self.joint_points3D = np.append(self.joint_points3D,np.array([body.joints2[2][1]])) 
 				self.joint_points3D = np.array([body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]])
 
-	# Transform Color frame into Camera space points frame
-	def acquireCameraSpace(self):
-		Camera_frame = self._kinect.faces_points_to_camera_space_points()
-		return Camera_frame
+	# Transform Depth points of interest into Camera space points 
+	def acquireCameraSpace(self, depthpoints, depths):
+		n = len(depthpoints)
+		points_cam = np.array([])
+		assert n == len(depths)
+		for i in range(n):
+			points_cam = np.append(points_cam, self._kinect.depth_to_camera(depthpoints[i], depths[i]))
+		return points_cam
 
 	#Acquire the type of frame required
 	def acquireFrame(self):
