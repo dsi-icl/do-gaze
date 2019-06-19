@@ -77,7 +77,10 @@ class AcquisitionKinect():
 		points_cam = np.array([])
 		assert n == len(depths)
 		for i in range(n):
-			points_cam = np.append(points_cam, self._kinect.depth_to_camera(depthpoints[i], depths[i]))
+			depthpoint = PyKinectRuntime.PyKinectRuntime(PyKinectV2._DepthSpacePoint)
+			depthpoint.x = depthpoints[i][0]
+			depthpoint.y = depthpoints[i][1]
+			points_cam = np.append(points_cam, self._kinect.depth_to_camera(depthpoint, depths[i]))
 		return points_cam
 
 	#Acquire the type of frame required
