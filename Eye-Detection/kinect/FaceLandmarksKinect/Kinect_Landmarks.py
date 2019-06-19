@@ -19,7 +19,7 @@ predictor = dlib.shape_predictor('../../shape_predictor_68_face_landmarks.dat')
 Functions
 """
 def normv(v):
-    return(v / np.sqrt(np.sum(v**2)))
+    return(v / np.linalg.norm(v))
 
 
 if __name__ == '__main__':
@@ -133,20 +133,42 @@ if __name__ == '__main__':
 		(255, 0, 0), 2)
 
 		"""
-		Points of interest
+		Points of interest from 2D picture to 3D space coordinates
 		"""
 		# w,x,y,z are coordinates whereas w_d, x_d, y_d, z_d are the depth values of these coordinates
 		w, x, y, z = np.array([preds[36,0]*scale[0], preds[36,1]*scale[1]]), np.array([preds[45,0]*scale[0], preds[45,1]*scale[1]]), np.array([preds[27,0]*scale[0], preds[27,1]*scale[1]]), np.array([preds[51,0]*scale[0], preds[51,1]*scale[1]])
 		w_d, x_d, y_d, z_d = frameDepth[int(w[1]), int(w[0])], frameDepth[int(x[1]), int(x[0])], frameDepth[int(y[1]), int(y[0])], frameDepth[int(z[1]), int(z[0])]
 
-		depthpoints = np.array([w,x,y,z])
-		depths = np.array([w_d,x_d,y_d,z_d])
+		right_eye = np.array([right_eye[0]*scale[0], right_eye[1]*scale[1]])
+		right_eye_d = frameDepth[int(right_eye[1]), int(right_eye[0])]
+
+		depthpoints = np.array([w,x,y,z,right_eye])
+		depths = np.array([w_d,x_d,y_d,z_d,right_eye_d])
 		face_land = kinect.acquireCameraSpace(depthpoints, depths)
 
 		x_0 = face_land[0:3]
 		x_1 = face_land[3:6]
 		y_0 = face_land[6:9]
 		y_1 = face_land[9:12]
+
+		right_eye_s = face_land[12:15]
+
+
+
+		x_s = normv(x_1 - x_0)
+		y_s = normv(y_1 - y_0)
+		z_s = np.cross(x, y)
+
+		if z_s[2] > 0:
+			z_s = z_s * (-1)
+
+		k = - right_eye_s[2] / (z_s[2])
+
+		cible = right_eye_s + k*z_s
+
+		print("Draw a point here:", cible)
+
+
 
 		#print(kinect.acquireCameraSpace(depthpoints, depths))
 		#image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
