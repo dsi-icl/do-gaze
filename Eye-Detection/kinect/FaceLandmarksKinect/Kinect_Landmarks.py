@@ -36,7 +36,6 @@ if __name__ == '__main__':
 		kinect.get_eye_camera_space_coord()
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
-		#print(kinect.acquireCameraSpace())
 
 		#print("###################################################################")
 		#print(frameDepth)
@@ -73,20 +72,20 @@ if __name__ == '__main__':
 		Projection of the gaze on the screens
 		"""
 
-		rot = Rotation3d(w, x, y, z, wp, xp, yp, zp)
-		R, t = rot.rigid_transform_3D()
+		#rot = Rotation3d(w, x, y, z, wp, xp, yp, zp)
+		#R, t = rot.rigid_transform_3D()
 
-		R_i = np.linalg.inv(R)
+		#R_i = np.linalg.inv(R)
 
-		dir_vector = kinect.joint_points3D
-		dir_vector_norm = np.linalg.norm(dir_vector)
-		dir_vector = np.dot(R_i, dir_vector/dir_vector_norm)
+		#dir_vector = kinect.joint_points3D
+		#dir_vector_norm = np.linalg.norm(dir_vector)
+		#dir_vector = np.dot(R_i, dir_vector/dir_vector_norm)
 
-		k = -kinect.joint_points3D[2]/(dir_vector)
+		#k = -kinect.joint_points3D[2]/(dir_vector)
 
-		cible = kinect.joint_points3D + k*dir_vector
+		#cible = kinect.joint_points3D + k*dir_vector
 
-		print("Draw a point here !!", cible)
+		#print("Draw a point here !!", cible)
 
 		
 
@@ -137,17 +136,21 @@ if __name__ == '__main__':
 		Points of interest
 		"""
 		# w,x,y,z are coordinates whereas w_d, x_d, y_d, z_d are the depth values of these coordinates
-		w, x, y, z = preds[36,0:2], preds[45,0:2], preds[27,0:2], preds[51,0:2]
-		w_d, x_d, y_d, z_d = frameDepth[w[1], w[0]], frameDepth[x[1], x[0]], frameDepth[y[1], y[0]], frameDepth[z[1], z[0]]
+		w, x, y, z = np.array([preds[36,0]*scale[0], preds[36,1]*scale[1]]), np.array([preds[45,0]*scale[0], preds[45,1]*scale[1]]), np.array([preds[27,0]*scale[0], preds[27,1]*scale[1]]), np.array([preds[51,0]*scale[0], preds[51,1]*scale[1]])
+		w_d, x_d, y_d, z_d = frameDepth[int(w[1]), int(w[0])], frameDepth[int(x[1]), int(x[0])], frameDepth[int(y[1]), int(y[0])], frameDepth[int(z[1]), int(z[0])]
 
 		depthpoints = np.array([w,x,y,z])
 		depths = np.array([w_d,x_d,y_d,z_d])
+		face_land = kinect.acquireCameraSpace(depthpoints, depths)
 
+		x_0 = face_land[0:3]
+		x_1 = face_land[3:6]
+		y_0 = face_land[6:9]
+		y_1 = face_land[9:12]
+
+		#print(kinect.acquireCameraSpace(depthpoints, depths))
 		#image2 = cv2.resize(image,(512,424), interpolation = cv2.INTER_AREA)
 		#overlay = depth
-		
-		def depth_to_camera(self, depthpoint, depth):
-			return self._mapper.MapDepthPointToCameraSpace(depthpoint, depth)
 
 		#cv2.addWeighted(overlay, alpha, image2, 0.2 , 0.8, output)
 		
