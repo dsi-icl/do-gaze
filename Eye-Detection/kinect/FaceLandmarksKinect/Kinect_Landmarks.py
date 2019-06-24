@@ -116,8 +116,8 @@ if __name__ == '__main__':
 
 		left_eye = (preds[45,:] + preds[42,:])//2
 		right_eye = (preds[39,:] + preds[36,:])//2
-		end_line_left = left_eye + 300 * corrected_w
-		end_line_right = right_eye + 300 * corrected_w
+		end_line_left = list(map(int, (left_eye + 300 * corrected_w)))
+		end_line_right = list(map(int, (right_eye + 300 * corrected_w)))
 		line_left = np.array([left_eye,end_line_left])
 		line_right = np.array([right_eye, end_line_right])
 
