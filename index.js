@@ -17,11 +17,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', function (req, res, next) {
-    res.sendfile(__dirname + '/ws.html');
+    res.sendFile(__dirname + '/ws.html');
 });
 
 app.post('/', function (req, res, next) {
     broadcast(req.body);
+    res.json({
+        status: "OK"
+    });
 });
 
 app.ws('/', function (ws, req) {
