@@ -1,0 +1,31 @@
+<html>
+
+<body>
+    <div>
+        <span>X Pos: <em id="xpos">-</em></span></br>
+        <span>Y Pos: <em id="ypos">-</em></span></br>
+        <span>Z Pos: <em id="zpos">-</em></span></br>
+    </div>
+    <script>
+        var ws = new WebSocket((window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host);
+        // event emmited when connected
+        ws.onopen = function () {
+            console.log('websocket is connected ...')
+            // sending a send event to websocket server
+            ws.send('connected')
+        }
+        // event emmited when receiving message 
+        ws.onmessage = function (ev) {
+            pos = JSON.parse(ev.data);
+            document.getElementById('xpos').innerText = pos.x;
+            document.getElementById('ypos').innerText = pos.y;
+            document.getElementById('zpos').innerText = pos.z;
+        }
+
+        window.test = function (str) {
+            ws.send(str)
+        }
+    </script>
+</body>
+
+</html>

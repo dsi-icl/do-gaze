@@ -1,0 +1,18 @@
+{
+  "name": "gdo-gaze",
+  "version": "0.0.1",
+  "description": "Components for GDO gaze monitoring framework",
+  "main": "index.js",
+  "repository": "https://github.com/dsi-icl/gdo-gaze",
+  "author": "Andrianirina Rakotoharisoa <andrianirina.rakotoharisoa19@imperial.ac.uk>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "lerna": "^3.15.0"
+  },
+  "scripts": {
+    "start": "node ./index.js"
+  }
+}
