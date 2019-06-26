@@ -144,7 +144,8 @@ if __name__ == '__main__':
 			"z": cible[2]
 		}
 
-		myurl = "https://gdo-gaze.dsi.ic.ac.uk"
+		#myurl = "https://gdo-gaze.dsi.ic.ac.uk"
+		myurl = "http://localhost:3000/"
 		r = requests.post(myurl, data = data_point)
 		#with open("cible.json", "w") as write_file:
 		#	json.dump(data_point, write_file)
