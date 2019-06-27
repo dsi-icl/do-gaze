@@ -6,10 +6,15 @@
         <span>Y Pos: <em id="ypos">-</em></span></br>
         <span>Z Pos: <em id="zpos">-</em></span></br>
     </div>
-    <svg width = "640" height = "480">
+    <svg width = "3072" height = "1728">
         <circle id="circle" cx='0' cy='0' r="10" stroke="green" fill="red" />
+        <rect width="3072" height="1728" style="fill:white;stroke-width:3;stroke:rgb(0,0,0)" />
     </svg>
     <script>
+        const coord = new URLSearchParams(window.location.search);
+        const screen_x = coord.getAll('x');
+        const screen_y = coord.getAll('y');
+
         var ws = new WebSocket((window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host);
         // event emmited when connected
         ws.onopen = function () {
@@ -23,13 +28,15 @@
             // document.getElementById('xpos').innerText = pos.x;
             // document.getElementById('ypos').innerText = pos.y;
             // document.getElementById('zpos').innerText = pos.z;
-            document.getElementById('circle').setAttribute('cx', pos.x);
-            document.getElementById('circle').setAttribute('cy', pos.y);
+            document.getElementById('circle').setAttribute('cx', Math.round((pos.x - screen_x)*3072/1.105));
+            document.getElementById('circle').setAttribute('cy', Math.round((pos.y - screen_y)*1728/0.633));
         }
 
         window.test = function (str) {
             ws.send(str)
         }
+
+
     </script>
 </body>
 
