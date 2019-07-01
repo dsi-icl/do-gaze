@@ -24,8 +24,8 @@
         // event emmited when receiving message 
         ws.onmessage = function (ev) {
             pos = JSON.parse(ev.data);
-            document.getElementById('xpos').innerText = pos.x - screen_x;
-            document.getElementById('ypos').innerText = screen_y - pos.y;
+            document.getElementById('xpos').innerText = Math.round((pos.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos').innerText = Math.round((screen_y - pos.y)*canva_y/0.633);
             // document.getElementById('zpos').innerText = pos.z;
             document.getElementById('circle').setAttribute('cx', Math.round((pos.x - screen_x)*canva_x/1.105));
             document.getElementById('circle').setAttribute('cy', Math.round((screen_y - pos.y)*canva_y/0.633));
