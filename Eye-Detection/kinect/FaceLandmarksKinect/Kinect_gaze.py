@@ -10,6 +10,8 @@ from skimage import io
 from rotate.rotation import Rotation3d
 import json
 import requests
+import websocket
+from websocket import create_connection
 import urllib.request
 
 """
@@ -29,6 +31,10 @@ Norm of a vector
 def normv(v):
     return(v / np.linalg.norm(v))
 
+websocket.enableTrace(True)
+ws = create_connection('https://gdo-gaze.dsi.ic.ac.uk')
+
+
 
 if __name__ == '__main__':
 
@@ -39,9 +45,6 @@ if __name__ == '__main__':
 
 	while True:
 		kinect.get_frame(frame)
-		kinect.get_depth_frame()
-		kinect.get_color_frame()
-		kinect.get_eye_camera_space_coord()
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
 
@@ -67,12 +70,10 @@ if __name__ == '__main__':
 		if w[2] < 0:
 			w = w * (-1)
 
-		corrected_w = rotation_x(w, 0.3)
-
 		left_eye = (preds[45,:] + preds[42,:])//2
 		right_eye = (preds[39,:] + preds[36,:])//2
-		end_line_left = left_eye + 300 * corrected_w
-		end_line_right = right_eye + 300 * corrected_w
+		end_line_left = left_eye + 300 * w
+		end_line_right = right_eye + 300 * w
 		line_left = np.array([left_eye,end_line_left])
 		line_right = np.array([right_eye, end_line_right])
 
@@ -110,8 +111,11 @@ if __name__ == '__main__':
 		right_eye = np.array([right_eye[0]*scale[0], right_eye[1]*scale[1]])
 		right_eye_d = frameDepth[int(right_eye[1]), int(right_eye[0])]
 
-		depthpoints = np.array([w,x,y,z,right_eye])
-		depths = np.array([w_d,x_d,y_d,z_d,right_eye_d])
+		left_eye = np.array([left_eye[0]*scale[0], left_eye[1]*scale[1]])
+		left_eye_d = frameDepth[int(left_eye[1]), int(left_eye[0])]
+
+		depthpoints = np.array([w,x,y,z,right_eye, left_eye])
+		depths = np.array([w_d,x_d,y_d,z_d,right_eye_d, left_eye_d])
 		face_land = kinect.acquireCameraSpace(depthpoints, depths)
 
 		x_0 = face_land[0:3]
@@ -120,15 +124,13 @@ if __name__ == '__main__':
 		y_1 = face_land[9:12]
 
 		right_eye_s = face_land[12:15]
+		left_eye_s = face_land[15:18]
 
 		
 
-		x_s = normv(x_1 - x_0)
+		x_s = normv(right_eye_s - left_eye_s)
 		y_s = normv(y_1 - y_0)
 		z_s = np.cross(x_s, y_s)
-
-		#Correction of the director vector
-		z_s = rotation_x(z_s,0.3)
 		
 
 		if z_s[2] > 0:
@@ -143,14 +145,10 @@ if __name__ == '__main__':
 			"y": cible[1],
 			"z": cible[2]
 		}
+		
+		data_point = json.dumps(data_point, separators=(',', ':'))
 
-		#myurl = "https://gdo-gaze.dsi.ic.ac.uk"
-		myurl = "http://localhost:3000/"
-		r = requests.post(myurl, data = data_point)
-		#with open("cible.json", "w") as write_file:
-		#	json.dump(data_point, write_file)
-
-		print("Draw a point here:", cible)		
+		ws.send(data_point)
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
