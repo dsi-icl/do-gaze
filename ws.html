@@ -24,7 +24,8 @@
         // event emmited when receiving message 
         ws.onmessage = function (ev) {
             console.log("on message data", ev);
-            pos = JSON.parse(ev.data);
+            ts_mes = JSON.parse(ev.data);
+            pos = JSON.parse(ts_mes.message);
             console.log("onmessage", pos)
             document.getElementById('xpos').innerText = Math.round((pos.x - screen_x)*canva_x/1.105);
             document.getElementById('ypos').innerText = Math.round((screen_y - pos.y)*canva_y/0.633);
