@@ -9,10 +9,10 @@ import face_alignment
 from skimage import io
 from rotate.rotation import Rotation3d
 import json
-import requests
 import websocket
-from websocket import create_connection
-import urllib.request
+
+ws = websocket.WebSocket()
+ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
 """
 Functions
@@ -31,10 +31,6 @@ Norm of a vector
 def normv(v):
     return(v / np.linalg.norm(v))
 
-websocket.enableTrace(True)
-ws = create_connection('https://gdo-gaze.dsi.ic.ac.uk')
-
-
 
 if __name__ == '__main__':
 
@@ -48,39 +44,39 @@ if __name__ == '__main__':
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
 
+		
+
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
 		preds = fa.get_landmarks(image)[-1]
 
-		h = int(np.linalg.norm(preds[45,:] - preds[36,:]))
-		v = int(np.linalg.norm(preds[27,:] - preds[51,:]))
+		x_ = preds[45,:] - preds[36,:]
+		y_ = preds[27,:] - preds[51,:]
+		w_ = np.cross(x_, y_)
 
-
-		w, x, y, z = preds[36,:], preds[45,:], preds[27,:], preds[51,:]
-		wp, xp, yp, zp = [-h//2, 0, 0], [h//2, 0, 0], [0, 100, 0], [0, 100 + v, 0]
-
-		x = preds[45,:] - preds[36,:]
-		y = preds[27,:] - preds[51,:]
-
-		u = normv(x)
-		v = normv(y)
-		w = np.cross(u,v)
-
-		if w[2] < 0:
-			w = w * (-1)
+		if w_[2] < 0:
+			w_ = w_*(-1)
 
 		left_eye = (preds[45,:] + preds[42,:])//2
 		right_eye = (preds[39,:] + preds[36,:])//2
-		end_line_left = left_eye + 300 * w
-		end_line_right = right_eye + 300 * w
+		
+		end_line_left = list(map(int, (left_eye + 300 * w_)))
+		end_line_right = list(map(int, (right_eye + 300 * w_)))
 		line_left = np.array([left_eye,end_line_left])
 		line_right = np.array([right_eye, end_line_right])
 
-		cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left[0], end_line_left[1]),
-		(255, 0, 0), 2)
-		cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
-		(255, 0, 0), 2)
+		#cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left[0], end_line_left[1]),
+		#(255, 0, 0), 2)
+		#cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
+		#(255, 0, 0), 2)
+
+		#cv2.circle(image, (right_eye[0], right_eye[1]), 2, (255,0,0), 0)
+		cv2.circle(image, (left_eye[0], left_eye[1]), 2, (0,255,0), 0)
+		#cv2.circle(image, (preds[27,0], preds[27,1]), 2, (0,0,255), 0)
+		#cv2.circle(image, (preds[8,0], preds[8,1]), 2, (0,255,255), 0)
+
+
 		scale = np.array([512/1920, 424/1080])
 
 		depth = np.zeros([424,512,3])
@@ -88,16 +84,6 @@ if __name__ == '__main__':
 		for i in range(424):
 			for j in range(512):
 				depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
-
-		left_eye_d = np.array([int(left_eye[0]*scale[0]), int(left_eye[1]*scale[1])])
-		right_eye_d = np.array([int(right_eye[0]*scale[0]), int(right_eye[1]*scale[1])])
-		end_line_left_d = np.array([int(end_line_left[0]*scale[0]), int(end_line_left[1]*scale[1])])
-		end_line_right_d = np.array([int(end_line_right[0]*scale[0]), int(end_line_right[1]*scale[1])])
-
-		cv2.line(depth, (left_eye_d[0], left_eye_d[1]), (end_line_left_d[0], end_line_left_d[1]),
-		(255, 0, 0), 2)
-		cv2.line(depth, (right_eye_d[0], right_eye_d[1]), (end_line_right_d[0], end_line_right_d[1]),
-		(255, 0, 0), 2)
 
 		"""
 		Points of interest from 2D picture to 3D space coordinates
@@ -128,9 +114,12 @@ if __name__ == '__main__':
 
 		
 
-		x_s = normv(right_eye_s - left_eye_s)
-		y_s = normv(y_1 - y_0)
+		x_s = normv(x_1 - x_0)
+		y_s = normv(y_0 - y_1)
 		z_s = np.cross(x_s, y_s)
+
+		#Correction of the director vector
+		#z_s = rotation_x(z_s,0.3)
 		
 
 		if z_s[2] > 0:
@@ -140,20 +129,23 @@ if __name__ == '__main__':
 
 		cible = right_eye_s + k*z_s
 
+		print("cible", cible)
+
 		data_point = {
 			"x": cible[0],
 			"y": cible[1],
 			"z": cible[2]
 		}
-		
-		data_point = json.dumps(data_point, separators=(',', ':'))
 
-		ws.send(data_point)
+		message = json.dumps(data_point, separators=(',', ':'))
+
+		ws.send(message)	
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
 
 		key = cv2.waitKey(1)
 		if key == 27:
-		   break
+			ws.close()
+			break
 		
