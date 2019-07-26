@@ -7,12 +7,13 @@ from acquisitionKinect import AcquisitionKinect
 from frame import Frame
 import face_alignment
 from skimage import io
+import time
 from rotate.rotation import Rotation3d
 import json
 import websocket
 
-ws = websocket.WebSocket()
-ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
+# ws = websocket.WebSocket()
+# ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
 """
 Functions
@@ -33,38 +34,50 @@ def normv(v):
 
 
 if __name__ == '__main__':
+	departureTime = time.time()
+	print("Time0", time.time() - departureTime)
 
 	kinect = AcquisitionKinect()
 	frame = Frame()
-	fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._3D, flip_input=False, device="cuda")
+	fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
+	print("Time0.1", time.time() - departureTime)
 
 
 	while True:
+		startFrame = time.time()
 		kinect.get_frame(frame)
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
+		kinect.get_eye_camera_space_coord()
+		joint = kinect.joint_points3D
 
 		
 
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
+		scale = np.array([512/1920, 424/1080])
+
+		image = cv2.resize(image, None, fx = scale[0], fy = scale[1])
+
+		loop_start = time.time()
 		preds = fa.get_landmarks(image)[-1]
+		print("get_ldmrks", time.time() - loop_start)
 
 		x_ = preds[45,:] - preds[36,:]
 		y_ = preds[27,:] - preds[51,:]
 		w_ = np.cross(x_, y_)
 
-		if w_[2] < 0:
-			w_ = w_*(-1)
+		# if w_[2] < 0:
+		# 	w_ = w_*(-1)
 
 		left_eye = (preds[45,:] + preds[42,:])//2
 		right_eye = (preds[39,:] + preds[36,:])//2
 		
-		end_line_left = list(map(int, (left_eye + 300 * w_)))
-		end_line_right = list(map(int, (right_eye + 300 * w_)))
-		line_left = np.array([left_eye,end_line_left])
-		line_right = np.array([right_eye, end_line_right])
+		# end_line_left = list(map(int, (left_eye + 300 * w_)))
+		# end_line_right = list(map(int, (right_eye + 300 * w_)))
+		# line_left = np.array([left_eye,end_line_left])
+		# line_right = np.array([right_eye, end_line_right])
 
 		#cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left[0], end_line_left[1]),
 		#(255, 0, 0), 2)
@@ -77,7 +90,8 @@ if __name__ == '__main__':
 		#cv2.circle(image, (preds[8,0], preds[8,1]), 2, (0,255,255), 0)
 
 
-		scale = np.array([512/1920, 424/1080])
+
+		scale = np.array([1,1])
 
 		depth = np.zeros([424,512,3])
 
@@ -129,7 +143,11 @@ if __name__ == '__main__':
 
 		cible = right_eye_s + k*z_s
 
+		k_2 = - joint[2] / (z_s[2])
+		cible_2 = joint + k_2 * z_s
+
 		print("cible", cible)
+		print("cible_joint", cible_2)
 
 		data_point = {
 			"x": cible[0],
@@ -137,15 +155,15 @@ if __name__ == '__main__':
 			"z": cible[2]
 		}
 
-		message = json.dumps(data_point, separators=(',', ':'))
+		# message = json.dumps(data_point, separators=(',', ':'))
 
-		ws.send(message)	
+		# ws.send(message)	
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)
 
 		key = cv2.waitKey(1)
 		if key == 27:
-			ws.close()
+			#ws.close()
 			break
 		
