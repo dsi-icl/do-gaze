@@ -8,12 +8,15 @@ from frame import Frame
 import face_alignment
 from skimage import io
 import time
+import pandas as pd
 from rotate.rotation import Rotation3d
 import json
 import websocket
 
 # ws = websocket.WebSocket()
 # ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
+
+Cible = pd.DataFrame(data=[], columns=['Cible', 'Cible_joint', 'Difference'])
 
 """
 Functions
@@ -149,6 +152,8 @@ if __name__ == '__main__':
 		print("cible", cible)
 		print("cible_joint", cible_2)
 
+		Cible = Cible.append({'Cible':cible, 'Cible_joint':cible_2, 'difference':abs(cible-cible_2)}, ignore_index=True)
+
 		data_point = {
 			"x": cible[0],
 			"y": cible[1],
@@ -165,5 +170,6 @@ if __name__ == '__main__':
 		key = cv2.waitKey(1)
 		if key == 27:
 			#ws.close()
+			pd.DataFrame.to_csv(Cible, 'Cible.csv')
 			break
 		
