@@ -10,6 +10,7 @@ algo = sys.argv[0]
 departureTime = time.time()
 print("Time0", time.time() - departureTime)
 cap = cv2.VideoCapture(0)
+print("Width:", cap.get(3), "Height:", cap.get(4))
 print("Time0.1", time.time() - departureTime)
 if (algo == 0):
     detector = dlib.get_frontal_face_detector()
@@ -52,7 +53,9 @@ while True:
         print("Time4", time.time() - departureTime)
 
     else:
+        startTime = time.time()
         preds = fa.get_landmarks(frame)[-1]
+        print("get_lmrks_frm_img", time.time() - startTime)
         for i in range(68):
             cv2.circle(frame, (preds[i,0], preds[i,1]), 3, (255, 0, 0), -1)
 
