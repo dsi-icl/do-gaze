@@ -12,9 +12,12 @@ import pandas as pd
 from rotate.rotation import Rotation3d
 import json
 import websocket
+import pandas as pd
 
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
+
+data_cible = pd.DataFrame([], columns=["x", "y", "z"])
 
 Cible = pd.DataFrame(data=[], columns=['Cible', 'Cible_joint', 'Difference'])
 
@@ -165,9 +168,12 @@ if __name__ == '__main__':
 				"z": cible[2]
 			}
 
-			message = json.dumps(data_point, separators=(',', ':'))
+			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2]}, ignore_index=True)
+		message = data_cible.to_json(orient='index')
 
-			ws.send(message)	
+		#message = json.dumps(data_point, separators=(',', ':'))
+
+		ws.send(message)	
 
 		if not image is None:
 			cv2.imshow("Output-Keypoints",image)

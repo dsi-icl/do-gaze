@@ -54,10 +54,12 @@ while True:
 
     else:
         startTime = time.time()
-        preds = fa.get_landmarks(frame)[-1]
+        preds = fa.get_landmarks(frame)
         print("get_lmrks_frm_img", time.time() - startTime)
-        for i in range(68):
-            cv2.circle(frame, (preds[i,0], preds[i,1]), 3, (255, 0, 0), -1)
+        face_detected = len(preds)
+        for k in range(face_detected):
+            for i in range(68):
+                cv2.circle(frame, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
 
     cv2.imshow("Frame", frame)
 
