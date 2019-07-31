@@ -169,6 +169,8 @@ if __name__ == '__main__':
 			}
 
 			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2]}, ignore_index=True)
+		
+		data_cible.set_index(['p'+str(i) for i in range(nb_detected)], inplace=True)
 		message = data_cible.to_json(orient='index')
 
 		#message = json.dumps(data_point, separators=(',', ':'))

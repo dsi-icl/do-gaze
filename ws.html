@@ -42,23 +42,23 @@
             ts_mes = JSON.parse(ev.data);
             pos = JSON.parse(ts_mes.message);
             console.log("onmessage", pos)
-            document.getElementById('xpos0').innerText = Math.round((pos.0.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos0').innerText = Math.round((screen_y - pos.0.y)*canva_y/0.633);
+            document.getElementById('xpos0').innerText = Math.round((pos.p0.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos0').innerText = Math.round((screen_y - pos.p0.y)*canva_y/0.633);
 
-            document.getElementById('xpos12').innerText = Math.round((pos.1.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos12').innerText = Math.round((screen_y - pos.1.y)*canva_y/0.633);
+            document.getElementById('xpos12').innerText = Math.round((pos.p1.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos12').innerText = Math.round((screen_y - pos.p1.y)*canva_y/0.633);
 
-            document.getElementById('xpos2').innerText = Math.round((pos.2.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos2').innerText = Math.round((screen_y - pos.2.y)*canva_y/0.633);
+            document.getElementById('xpos2').innerText = Math.round((pos.p2.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos2').innerText = Math.round((screen_y - pos.p2.y)*canva_y/0.633);
 
-            document.getElementById('xpos3').innerText = Math.round((pos.3.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos3').innerText = Math.round((screen_y - pos.3.y)*canva_y/0.633);
+            document.getElementById('xpos3').innerText = Math.round((pos.p3.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos3').innerText = Math.round((screen_y - pos.p3.y)*canva_y/0.633);
 
-            document.getElementById('xpos4').innerText = Math.round((pos.4.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos4').innerText = Math.round((screen_y - pos.4.y)*canva_y/0.633);
+            document.getElementById('xpos4').innerText = Math.round((pos.p4.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos4').innerText = Math.round((screen_y - pos.p4.y)*canva_y/0.633);
 
-            document.getElementById('xpos5').innerText = Math.round((pos.5.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos5').innerText = Math.round((screen_y - pos.5.y)*canva_y/0.633);
+            document.getElementById('xpos5').innerText = Math.round((pos.p5.x - screen_x)*canva_x/1.105);
+            document.getElementById('ypos5').innerText = Math.round((screen_y - pos.p5.y)*canva_y/0.633);
             console.log(pos.x)
             // document.getElementById('zpos').innerText = pos.z;
             document.getElementById('circle').setAttribute('cx', Math.round((pos.x - screen_x)*canva_x/1.105));
