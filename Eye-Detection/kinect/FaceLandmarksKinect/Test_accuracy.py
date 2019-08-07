@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
 
 	while True:
-		data_cible = pd.DataFrame([], columns=["x", "y", "z"])
+		data_cible = pd.DataFrame([], columns=["x", "y", "z", "number"])
 		kinect.get_frame(frame)
 		kinect.get_color_frame()
 		image = kinect._frameRGB
@@ -35,20 +35,41 @@ if __name__ == '__main__':
 
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
-		# scale = np.array([512/1920, 424/1080])
 
-		# image = cv2.resize(image, None, fx = scale[0], fy = scale[1])
+		# Add movement sensor here (ie when the head doesn't move, don't use get_landmarks)
 
-		print(image.shape)
+		"""
+		Compute minimal euclidean distance to link a skeleton to a face
+		"""
+
+		def face_number(list_skeleton, nose_s):
+			min_ = None
+			nb_skel = len(list_skeleton)
+			for i in range(nb_skel):
+				distance = np.linalg.norm(joint[i] - nose_s)
+				if min_ is None:
+					min_ = i
+				elif distance < min_:
+					min_ = i
+			return min_
+
+
+
 
 		preds = fa.get_landmarks(image)
 		nb_detected = len(preds)
 
 		for k in range(nb_detected):
-			for i in range(68):
-				cv2.circle(image, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
-			left_eye = (preds[k][45,:] + preds[k][42,:])//2
-			cv2.circle(image, (left_eye[0], left_eye[1]), 2, (0,255,0), 0)
+			# draw all faces
+			# for i in range(68):
+			# 	cv2.circle(image, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
+			
+			# The right eye is defined by being the centor of two landmarks
+			# right_eye = (preds[k][45,:] + preds[k][42,:])//2
+
+			# 
+			nose_s = preds[k][30,:]
+			face_nb = face_number(joint, nose_s)
 			print("Mapper says here", CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])], CameraPoints[int(preds[k][49,1]), int(preds[k][49,0])])
 			x_0 = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
 			x_1 = np.array([CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][0], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][1], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][2]])
@@ -84,9 +105,9 @@ if __name__ == '__main__':
 				"z": cible[2]
 			}
 
-			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2]}, ignore_index=True)
+			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2], "number":"p" + str(face_nb)}, ignore_index=True)
 
-		data_cible.set_index([['p'+str(i) for i in range(nb_detected)]], inplace=True)
+		data_cible.set_index('number', inplace=True)
 		data_cible.dropna(inplace=True)
 		message = data_cible.to_json(orient='index')
 
