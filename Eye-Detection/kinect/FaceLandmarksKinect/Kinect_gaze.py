@@ -17,8 +17,6 @@ import pandas as pd
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
-data_cible = pd.DataFrame([], columns=["x", "y", "z"])
-
 Cible = pd.DataFrame(data=[], columns=['Cible', 'Cible_joint', 'Difference'])
 
 """
@@ -50,12 +48,14 @@ if __name__ == '__main__':
 
 
 	while True:
+		data_cible = pd.DataFrame([], columns=["x", "y", "z"])
 		startFrame = time.time()
 		kinect.get_frame(frame)
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
 		kinect.get_eye_camera_space_coord()
 		joint = kinect.joint_points3D
+		CameraPoints = kinect.cameraPoints
 
 		scale = np.array([512/1920, 424/1080])
 
@@ -70,18 +70,23 @@ if __name__ == '__main__':
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
-		#scale = np.array([512/1920, 424/1080])
+		print(image.shape)
 
-		#image = cv2.resize(image, None, fx = scale[0], fy = scale[1])
+		# scale = np.array([512/1920, 424/1080])
+
+		# image = cv2.resize(image, None, fx = scale[0], fy = scale[1])
 
 		loop_start = time.time()
 		preds = fa.get_landmarks(image)
-		print("get_ldmrks", time.time() - loop_start)
+		#print("get_ldmrks", time.time() - loop_start)
 		nb_detected = len(preds)
 		for k in range(nb_detected):
-			x_ = preds[k][45,:] - preds[k][36,:]
-			y_ = preds[k][27,:] - preds[k][51,:]
-			w_ = np.cross(x_, y_)
+			# x_ = preds[k][45,:] - preds[k][36,:]
+			# y_ = preds[k][27,:] - preds[k][51,:]
+			# w_ = np.cross(x_, y_)
+
+			for i in range(68):
+				cv2.circle(image, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
 
 			# if w_[2] < 0:
 			# 	w_ = w_*(-1)
@@ -112,30 +117,25 @@ if __name__ == '__main__':
 			
 			"""
 			# w,x,y,z are coordinates on the depth frame whereas w_d, x_d, y_d, z_d are the depth values of these coordinates
-			w, x, y, z = np.array([preds[k][36,0]*scale[0], preds[k][36,1]*scale[1]]), np.array([preds[k][45,0]*scale[0], preds[k][45,1]*scale[1]]), np.array([preds[k][27,0]*scale[0], preds[k][27,1]*scale[1]]), np.array([preds[k][51,0]*scale[0], preds[k][51,1]*scale[1]])
-			w_d, x_d, y_d, z_d = frameDepth[int(w[1]), int(w[0])], frameDepth[int(x[1]), int(x[0])], frameDepth[int(y[1]), int(y[0])], frameDepth[int(z[1]), int(z[0])]
-
-			right_eye = np.array([right_eye[0]*scale[0], right_eye[1]*scale[1]])
-			right_eye_d = frameDepth[int(right_eye[1]), int(right_eye[0])]
-
-			left_eye = np.array([left_eye[0]*scale[0], left_eye[1]*scale[1]])
-			left_eye_d = frameDepth[int(left_eye[1]), int(left_eye[0])]
-
-			depthpoints = np.array([w,x,y,z,right_eye, left_eye])
-			depths = np.array([w_d,x_d,y_d,z_d,right_eye_d, left_eye_d])
+			w_0, w_1, x, y, z = np.array([preds[k][36,0]*scale[0], preds[k][36,1]*scale[1]]), np.array([preds[k][39,0]*scale[0], preds[k][39,1]*scale[1]]), np.array([preds[k][45,0]*scale[0], preds[k][45,1]*scale[1]]), np.array([preds[k][27,0]*scale[0], preds[k][27,1]*scale[1]]), np.array([preds[k][51,0]*scale[0], preds[k][51,1]*scale[1]])
+			w_0_d, w_1_d, x_d, y_d, z_d = frameDepth[int(w_0[1]), int(w_0[0])], frameDepth[int(w_1[1]), int(w_1[0])], frameDepth[int(x[1]), int(x[0])], frameDepth[int(y[1]), int(y[0])], frameDepth[int(z[1]), int(z[0])]
+			depthpoints = np.array([w_0, w_1,x,y,z])
+			depths = np.array([w_0_d, w_1_d,x_d,y_d,z_d])
 			face_land = kinect.acquireCameraSpace(depthpoints, depths)
+			print("Mapper says here", CameraPoints[1080 * int(preds[k][36,1]) + int(preds[k][36,0])].x, CameraPoints[1080 * int(preds[k][36,1]) + int(preds[k][36,0])].y, CameraPoints[1080 * int(preds[k][36,1]) + int(preds[k][36,0])].z)
 
-			x_0 = face_land[0:3]
+			x_0_0 = face_land[0:3]
+			x_0_1 = face_land[3:6]
 			x_1 = face_land[3:6]
 			y_0 = face_land[6:9]
 			y_1 = face_land[9:12]
 
-			right_eye_s = face_land[12:15]
-			left_eye_s = face_land[15:18]
+			#print("right_eye_ext",x_0_0 , "right_eye_int",x_0_1)
+			right_eye_s = (x_0_0 + x_0_1)/2
 
 			
 
-			x_s = normv(x_1 - x_0)
+			x_s = normv(x_1 - x_0_0)
 			y_s = normv(y_0 - y_1)
 			z_s = np.cross(x_s, y_s)
 
@@ -149,12 +149,13 @@ if __name__ == '__main__':
 			k = - right_eye_s[2] / (z_s[2])
 
 			cible = right_eye_s + k*z_s
-			print("cible", cible)
+			#print("cible", cible)
 
 			case = len(joint)
 			if case > 0:
 				k_2 = - joint[2] / (z_s[2])
 				cible_2 = joint + k_2 * z_s
+				print("Your face is here", joint, right_eye_s)
 				print("cible_joint", cible_2)
 
 			else:
@@ -170,7 +171,9 @@ if __name__ == '__main__':
 
 			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2]}, ignore_index=True)
 		
-		data_cible.set_index(['p'+str(i) for i in range(nb_detected)], inplace=True)
+		
+		data_cible.set_index([['p'+str(i) for i in range(nb_detected)]], inplace=True)
+		data_cible.dropna(inplace=True)
 		message = data_cible.to_json(orient='index')
 
 		#message = json.dumps(data_point, separators=(',', ':'))
@@ -178,7 +181,7 @@ if __name__ == '__main__':
 		ws.send(message)	
 
 		if not image is None:
-			cv2.imshow("Output-Keypoints",image)
+			cv2.imshow("Output-Keypoints",frameDepth)
 
 		key = cv2.waitKey(1)
 		if key == 27:

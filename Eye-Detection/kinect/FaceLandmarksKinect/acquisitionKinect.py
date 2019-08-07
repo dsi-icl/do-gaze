@@ -36,6 +36,7 @@ class AcquisitionKinect():
 		self._frameDepth = None
 		self._frameDepthQuantized = None
 		self._frameSkeleton = None
+		self.cameraPoints = None
 		self.frameNum = 0
 
 	def get_frame(self, frame):
@@ -58,8 +59,10 @@ class AcquisitionKinect():
 	#Get depth from Frame
 	def get_depth_frame(self):
 		self._frameDepth = self._kinect.get_last_depth_frame()
+		self.cameraPoints = self._kinect.color_to_camera(self._frameDepth)
 		self._frameDepth = self._frameDepth.reshape(((424, 512))).astype(np.uint16)
 		self._frameDepthQuantized = ((self._frameDepth.astype(np.int32)-500)/8.0).astype(np.uint8)
+		
 
 	#Get Camera Coordinates from Joints
 	def get_eye_camera_space_coord(self):
@@ -84,12 +87,15 @@ class AcquisitionKinect():
 			points_cam = np.append(points_cam, np.array([space_point.x, space_point.y, space_point.z]))
 		return points_cam
 
+	def reverse(self, camera_point):
+		return self._kinect.test_reverse(camera_point)
+
 	#Acquire the type of frame required
 	def acquireFrame(self):
-		if self._kinect.has_new_color_frame():
+		if self._kinect.has_new_color_frame() & self._kinect.has_new_depth_frame():
 			self.get_color_frame()
-		if self._kinect.has_new_depth_frame():
 			self.get_depth_frame()
+			
 	def close(self):
 		self._kinect.close()
 		self._frameDepth = None
