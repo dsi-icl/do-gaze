@@ -70,8 +70,6 @@ if __name__ == '__main__':
 
 		# Add movement sensor here (ie when the head doesn't move, don't use get_landmarks)
 
-		# No same skeleton for multiple faces
-
 		preds = fa.get_landmarks(image)
 		nb_detected = len(preds)
 
