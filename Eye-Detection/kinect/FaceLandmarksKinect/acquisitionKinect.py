@@ -67,12 +67,17 @@ class AcquisitionKinect():
 	#Get Camera Coordinates from Joints
 	def get_eye_camera_space_coord(self):
 		self._bodies = self._kinect.get_last_body_frame()
+		self.joint_points3D = np.array([[]])
 		max_body_count = self._kinect.max_body_count
 		for i in range(0, max_body_count):
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
-				#self.joint_points3D = np.append(self.joint_points3D,np.array([body.joints2[2][1]])) 
-				self.joint_points3D = np.array([body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]])
+				print(i)
+				if self.joint_points3D.size == 0:
+					self.joint_points3D = np.array([[body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]]])
+				else:
+					self.joint_points3D = np.concatenate((self.joint_points3D,np.array([[body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]]]))) 
+				#self.joint_points3D = np.array([body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]])
 
 	# Transform Depth points of interest into Camera space points 
 	def acquireCameraSpace(self, depthpoints, depths):
