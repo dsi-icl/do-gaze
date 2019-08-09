@@ -28,21 +28,12 @@ background-color: #444;
         <span>Y5 Pos: <em id="yposp5">-</em></span></br>
     </div>
     <svg style="position: absolute; top: 0px; left: 0px; border: none; height: 100vh; width: 100vw">
-<<<<<<< HEAD
-        <circle id="circlep0" cx='0' cy='0' r="30" stroke="green" fill="red" />
-        <circle id="circlep1" cx='0' cy='0' r="30" stroke="yellow" fill="green" />
-        <circle id="circlep2" cx='0' cy='0' r="30" stroke="blue" fill="red" />
-        <circle id="circlep3" cx='0' cy='0' r="30" stroke="green" fill="red" />
-        <circle id="circlep4" cx='0' cy='0' r="30" stroke="green" fill="red" />
-        <circle id="circlep5" cx='0' cy='0' r="30" stroke="green" fill="red" />
-=======
         <circle id="circlep1" cx='0' cy='0' r="30" stroke="green" fill="red" />
         <circle id="circlep2" cx='0' cy='0' r="30" stroke="yellow" fill="green" />
         <circle id="circlep3" cx='0' cy='0' r="30" stroke="blue" fill="red" />
         <circle id="circlep4" cx='0' cy='0' r="30" stroke="green" fill="red" />
         <circle id="circlep5" cx='0' cy='0' r="30" stroke="green" fill="red" />
         <circle id="circlep6" cx='0' cy='0' r="30" stroke="green" fill="red" />
->>>>>>> b207e84830b79986698e50ed6c977c52aaaccc54
     </svg>
     <script>
         const coord = new URLSearchParams(window.location.search);
@@ -63,17 +54,6 @@ background-color: #444;
             ts_mes = JSON.parse(ev.data);
             pos = JSON.parse(ts_mes.message);
             console.log("onmessage", pos)
-<<<<<<< HEAD
-	    for (var key in pos){
-		if (pos.hasOwnProperty(key)){
-            	    document.getElementById('xpos'+key).innerText = Math.round((pos[key].x - screen_x)*canva_x/1.105);
-            	    document.getElementById('ypos'+key).innerText = Math.round((screen_y - pos[key].y)*canva_y/0.633);
-                    document.getElementById('circle'+key).setAttribute('cx', Math.round((pos[key].x - screen_x)*canva_x/1.105));
-                    document.getElementById('circle'+key).setAttribute('cy', Math.round((screen_y - pos[key].y)*canva_y/0.633));
-		}
-	     }
-	    console.log(pos.x)
-=======
             for (var key in pos){
                 if (pos.hasOwnProperty(key)){
                     document.getElementById('xpos'+key).innerText = Math.round((pos[key].x - screen_x)*canva_x/1.105);
@@ -85,7 +65,6 @@ background-color: #444;
             
             console.log(pos.x)
             // document.getElementById('zpos').innerText = pos.z;
->>>>>>> b207e84830b79986698e50ed6c977c52aaaccc54
         }
         window.test = function (str) {
             ws.send(str)

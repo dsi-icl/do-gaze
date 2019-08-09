@@ -69,6 +69,7 @@ if __name__ == '__main__':
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
 		# Add movement sensor here (ie when the head doesn't move, don't use get_landmarks)
+		# Use moving average
 
 		preds = fa.get_landmarks(image)
 		nb_detected = len(preds)
