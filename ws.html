@@ -9,31 +9,31 @@ background-color: #444;
 
 <body>
     <div>
-        <span>X0 Pos: <em id="xpos0">-</em></span></br>
-        <span>Y0 Pos: <em id="ypos0">-</em></span></br>
+        <span>X0 Pos: <em id="xposp0">-</em></span></br>
+        <span>Y0 Pos: <em id="yposp0">-</em></span></br>
 
-        <span>X1 Pos: <em id="xpos1">-</em></span></br>
-        <span>Y1 Pos: <em id="ypos1">-</em></span></br>
+        <span>X1 Pos: <em id="xposp1">-</em></span></br>
+        <span>Y1 Pos: <em id="yposp1">-</em></span></br>
 
-        <span>X2 Pos: <em id="xpos2">-</em></span></br>
-        <span>Y2 Pos: <em id="ypos2">-</em></span></br>
+        <span>X2 Pos: <em id="xposp2">-</em></span></br>
+        <span>Y2 Pos: <em id="yposp2">-</em></span></br>
 
-        <span>X3 Pos: <em id="xpos3">-</em></span></br>
-        <span>Y3 Pos: <em id="ypos3">-</em></span></br>
+        <span>X3 Pos: <em id="xposp3">-</em></span></br>
+        <span>Y3 Pos: <em id="yposp3">-</em></span></br>
 
-        <span>X4 Pos: <em id="xpos4">-</em></span></br>
-        <span>Y4 Pos: <em id="ypos4">-</em></span></br>
+        <span>X4 Pos: <em id="xposp4">-</em></span></br>
+        <span>Y4 Pos: <em id="yposp4">-</em></span></br>
 
-        <span>X5 Pos: <em id="xpos5">-</em></span></br>
-        <span>Y5 Pos: <em id="ypos5">-</em></span></br>
+        <span>X5 Pos: <em id="xposp5">-</em></span></br>
+        <span>Y5 Pos: <em id="yposp5">-</em></span></br>
     </div>
     <svg style="position: absolute; top: 0px; left: 0px; border: none; height: 100vh; width: 100vw">
-        <circle id="circle1" cx='0' cy='0' r="100" stroke="green" fill="red" />
-        <circle id="circle2" cx='0' cy='0' r="100" stroke="yellow" fill="green" />
-        <!-- <circle id="circle3" cx='0' cy='0' r="10" stroke="blue" fill="red" />
-        <circle id="circle4" cx='0' cy='0' r="10" stroke="green" fill="red" />
-        <circle id="circle5" cx='0' cy='0' r="10" stroke="green" fill="red" />
-        <circle id="circle6" cx='0' cy='0' r="10" stroke="green" fill="red" /> -->
+        <circle id="circlep0" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circlep1" cx='0' cy='0' r="30" stroke="yellow" fill="green" />
+        <circle id="circlep2" cx='0' cy='0' r="30" stroke="blue" fill="red" />
+        <circle id="circlep3" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circlep4" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circlep5" cx='0' cy='0' r="30" stroke="green" fill="red" />
     </svg>
     <script>
         const coord = new URLSearchParams(window.location.search);
@@ -54,37 +54,15 @@ background-color: #444;
             ts_mes = JSON.parse(ev.data);
             pos = JSON.parse(ts_mes.message);
             console.log("onmessage", pos)
-            document.getElementById('xpos0').innerText = Math.round((pos.p0.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos0').innerText = Math.round((screen_y - pos.p0.y)*canva_y/0.633);
-
-            document.getElementById('xpos1').innerText = Math.round((pos.p1.x - screen_x)*canva_x/1.105);
-            document.getElementById('ypos1').innerText = Math.round((screen_y - pos.p1.y)*canva_y/0.633);
-
-            // document.getElementById('xpos2').innerText = Math.round((pos.p2.x - screen_x)*canva_x/1.105);
-            // document.getElementById('ypos2').innerText = Math.round((screen_y - pos.p2.y)*canva_y/0.633);
-
-            // document.getElementById('xpos3').innerText = Math.round((pos.p3.x - screen_x)*canva_x/1.105);
-            // document.getElementById('ypos3').innerText = Math.round((screen_y - pos.p3.y)*canva_y/0.633);
-
-            // document.getElementById('xpos4').innerText = Math.round((pos.p4.x - screen_x)*canva_x/1.105);
-            // document.getElementById('ypos4').innerText = Math.round((screen_y - pos.p4.y)*canva_y/0.633);
-
-            // document.getElementById('xpos5').innerText = Math.round((pos.p5.x - screen_x)*canva_x/1.105);
-            // document.getElementById('ypos5').innerText = Math.round((screen_y - pos.p5.y)*canva_y/0.633);
-            console.log(pos.x)
-            // document.getElementById('zpos').innerText = pos.z;
-            document.getElementById('circle1').setAttribute('cx', Math.round((pos.p0.x - screen_x)*canva_x/1.105));
-            document.getElementById('circle1').setAttribute('cy', Math.round((screen_y - pos.p0.y)*canva_y/0.633));
-            document.getElementById('circle2').setAttribute('cx', Math.round((pos.p1.x - screen_x)*canva_x/1.105));
-            document.getElementById('circle2').setAttribute('cy', Math.round((screen_y - pos.p1.y)*canva_y/0.633));
-            // document.getElementById('circle3').setAttribute('cx', Math.round((pos.p2.x - screen_x)*canva_x/1.105));
-            // document.getElementById('circle3').setAttribute('cy', Math.round((screen_y - pos.p2.y)*canva_y/0.633));
-            // document.getElementById('circle4').setAttribute('cx', Math.round((pos.p3.x - screen_x)*canva_x/1.105));
-            // document.getElementById('circle4').setAttribute('cy', Math.round((screen_y - pos.p3.y)*canva_y/0.633));
-            // document.getElementById('circle5').setAttribute('cx', Math.round((pos.p4.x - screen_x)*canva_x/1.105));
-            // document.getElementById('circle5').setAttribute('cy', Math.round((screen_y - pos.p4.y)*canva_y/0.633));
-            // document.getElementById('circle6').setAttribute('cx', Math.round((pos.p5.x - screen_x)*canva_x/1.105));
-            // document.getElementById('circle6').setAttribute('cy', Math.round((screen_y - pos.p5.y)*canva_y/0.633));
+	    for (var key in pos){
+		if (pos.hasOwnProperty(key)){
+            	    document.getElementById('xpos'+key).innerText = Math.round((pos[key].x - screen_x)*canva_x/1.105);
+            	    document.getElementById('ypos'+key).innerText = Math.round((screen_y - pos[key].y)*canva_y/0.633);
+                    document.getElementById('circle'+key).setAttribute('cx', Math.round((pos[key].x - screen_x)*canva_x/1.105));
+                    document.getElementById('circle'+key).setAttribute('cy', Math.round((screen_y - pos[key].y)*canva_y/0.633));
+		}
+	     }
+	    console.log(pos.x)
         }
         window.test = function (str) {
             ws.send(str)
