@@ -7,9 +7,6 @@ from acquisitionKinect import AcquisitionKinect
 from frame import Frame
 import face_alignment
 from skimage import io
-import time
-import pandas as pd
-from rotate.rotation import Rotation3d
 import json
 import websocket
 import pandas as pd
@@ -17,175 +14,139 @@ import pandas as pd
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
-Cible = pd.DataFrame(data=[], columns=['Cible', 'Cible_joint', 'Difference'])
-
 """
-Functions
+Compute minimal euclidean distance to link a skeleton to a face
 """
 
-"""
-Rotations
-"""
-def rotation_x(v, alpha):
-    R = np.array([[1, 0, 0], [0, np.cos(alpha), np.sin(alpha)], [0, -np.sin(alpha), np.cos(alpha)]])
-    return np.dot(R, v)
+def face_number(list_skeleton, nose_s):
+	min_ = None
+	nb_skel = len(list_skeleton)
+	for i in range(nb_skel):
+		distance = np.linalg.norm(list_skeleton[i] - nose_s)
+		if min_ is None:
+			min_ = i
+			distance_m = distance
+		elif distance < distance_m:
+			min_ = i
+			distance_m = distance
+	return min_, distance_m
 
 """
-Norm of a vector
+Check same length for list of bodies and list of faces
 """
-def normv(v):
-    return(v / np.linalg.norm(v))
+def remove_dop(df):
+    last = df.iterrows()
+    df2 = df
+    for ind, row in last:
+        last2 = df2.iterrows()
+        for ind2, row2 in last2:
+            if row[3] == row2[3]:
+                if row[4] < row2[4]:
+                    df2.drop(ind2, axis=0, inplace=True)
+    return df2
 
 
 if __name__ == '__main__':
-	departureTime = time.time()
-	print("Time0", time.time() - departureTime)
 
 	kinect = AcquisitionKinect()
 	frame = Frame()
 	fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
-	print("Time0.1", time.time() - departureTime)
 
 
 	while True:
-		data_cible = pd.DataFrame([], columns=["x", "y", "z"])
-		startFrame = time.time()
+		data_cible = pd.DataFrame([], columns=["x", "y", "z", "number", "distance"])
 		kinect.get_frame(frame)
+		kinect.get_color_frame()
 		image = kinect._frameRGB
 		frameDepth = kinect._frameDepth
 		kinect.get_eye_camera_space_coord()
 		joint = kinect.joint_points3D
+		print("List of bodies", joint)
 		CameraPoints = kinect.cameraPoints
 
-		scale = np.array([512/1920, 424/1080])
-
-		depth = np.zeros([424,512,3])
-
-		for i in range(424):
-			for j in range(512):
-				depth[i,j] = (frameDepth[i,j],frameDepth[i,j],255)
-
-		
 
 		#OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
 		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
-		print(image.shape)
+		# Add movement sensor here (ie when the head doesn't move, don't use get_landmarks)
+		# Use moving average
 
-		# scale = np.array([512/1920, 424/1080])
-
-		# image = cv2.resize(image, None, fx = scale[0], fy = scale[1])
-
-		loop_start = time.time()
 		preds = fa.get_landmarks(image)
-		#print("get_ldmrks", time.time() - loop_start)
 		nb_detected = len(preds)
+
+		try:
+			assert len(joint) == nb_detected
+		except:
+			print("Error between the number of faces detected and the number of skeletons")
+
 		for k in range(nb_detected):
-			# x_ = preds[k][45,:] - preds[k][36,:]
-			# y_ = preds[k][27,:] - preds[k][51,:]
-			# w_ = np.cross(x_, y_)
-
-			for i in range(68):
-				cv2.circle(image, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
-
-			# if w_[2] < 0:
-			# 	w_ = w_*(-1)
-
-			left_eye = (preds[k][45,:] + preds[k][42,:])//2
-			right_eye = (preds[k][39,:] + preds[k][36,:])//2
+			# draw all faces
+			# for i in range(68):
+			# 	cv2.circle(image, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
 			
-			# end_line_left = list(map(int, (left_eye + 300 * w_)))
-			# end_line_right = list(map(int, (right_eye + 300 * w_)))
-			# line_left = np.array([left_eye,end_line_left])
-			# line_right = np.array([right_eye, end_line_right])
+			# The right eye is defined by being the centor of two landmarks
+			# right_eye = (preds[k][45,:] + preds[k][42,:])//2
 
-			#cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left[0], end_line_left[1]),
-			#(255, 0, 0), 2)
-			#cv2.line(image, (right_eye[0], right_eye[1]), (end_line_right[0], end_line_right[1]),
-			#(255, 0, 0), 2)
-
-			#cv2.circle(image, (right_eye[0], right_eye[1]), 2, (255,0,0), 0)
-			cv2.circle(image, (left_eye[0], left_eye[1]), 2, (0,255,0), 0)
-			#cv2.circle(image, (preds[27,0], preds[27,1]), 2, (0,0,255), 0)
-			#cv2.circle(image, (preds[8,0], preds[8,1]), 2, (0,255,255), 0)
-
-
-
-			"""
-			Points of interest from 2D picture to 3D space coordinates
-			Projection of the gaze on the screens
+			# 
+			nose_s = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
+			face_nb, distance = face_number(joint, nose_s)
 			
-			"""
-			# w,x,y,z are coordinates on the depth frame whereas w_d, x_d, y_d, z_d are the depth values of these coordinates
-			w_0, w_1, x, y, z = np.array([preds[k][36,0]*scale[0], preds[k][36,1]*scale[1]]), np.array([preds[k][39,0]*scale[0], preds[k][39,1]*scale[1]]), np.array([preds[k][45,0]*scale[0], preds[k][45,1]*scale[1]]), np.array([preds[k][27,0]*scale[0], preds[k][27,1]*scale[1]]), np.array([preds[k][51,0]*scale[0], preds[k][51,1]*scale[1]])
-			w_0_d, w_1_d, x_d, y_d, z_d = frameDepth[int(w_0[1]), int(w_0[0])], frameDepth[int(w_1[1]), int(w_1[0])], frameDepth[int(x[1]), int(x[0])], frameDepth[int(y[1]), int(y[0])], frameDepth[int(z[1]), int(z[0])]
-			depthpoints = np.array([w_0, w_1,x,y,z])
-			depths = np.array([w_0_d, w_1_d,x_d,y_d,z_d])
-			face_land = kinect.acquireCameraSpace(depthpoints, depths)
-			print("Mapper says here", CameraPoints[1080 * int(preds[k][36,1]) + int(preds[k][36,0])].x, CameraPoints[1080 * int(preds[k][36,1]) + int(preds[k][36,0])].y, CameraPoints[1080 * int(preds[k][36,1]) + int(preds[k][36,0])].z)
+			x_0 = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
+			x_1 = np.array([CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][0], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][1], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][2]])
+			x_1_2 = np.array([CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][0], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][1], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][2]])
+			y_0 = np.array([CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][0], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][1], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][2]])
+			y_1 = np.array([CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][0], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][1], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][2]])
 
-			x_0_0 = face_land[0:3]
-			x_0_1 = face_land[3:6]
-			x_1 = face_land[3:6]
-			y_0 = face_land[6:9]
-			y_1 = face_land[9:12]
-
-			#print("right_eye_ext",x_0_0 , "right_eye_int",x_0_1)
-			right_eye_s = (x_0_0 + x_0_1)/2
-
-			
-
-			x_s = normv(x_1 - x_0_0)
-			y_s = normv(y_0 - y_1)
+			print("Mapper says here", x_0, x_1)
+			x_s = x_1 - x_0
+			x_s = x_s/(np.linalg.norm(x_s))
+			y_s = y_1 - y_0
+			y_s = y_s/(np.linalg.norm(y_s))
 			z_s = np.cross(x_s, y_s)
 
-			#Correction of the director vector
-			#z_s = rotation_x(z_s,0.3)
-			
+			left_eye_s = (x_1+x_1_2)//2
 
 			if z_s[2] > 0:
 				z_s = z_s * (-1)
 
-			k = - right_eye_s[2] / (z_s[2])
-
-			cible = right_eye_s + k*z_s
-			#print("cible", cible)
+			k = - left_eye_s[2]/z_s[2]
 
 			case = len(joint)
 			if case > 0:
-				k_2 = - joint[2] / (z_s[2])
-				cible_2 = joint + k_2 * z_s
-				print("Your face is here", joint, right_eye_s)
-				print("cible_joint", cible_2)
+				print("Your face is here", joint)
 
-			else:
-				cible_2 = 0
+			cible = left_eye_s + k*z_s
 
-			Cible = Cible.append({'Cible':cible, 'Cible_joint':cible_2, 'difference':abs(cible-cible_2)}, ignore_index=True)
-
+			print("cible", cible)
+			
 			data_point = {
 				"x": cible[0],
 				"y": cible[1],
 				"z": cible[2]
 			}
 
-			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2]}, ignore_index=True)
-		
-		
-		data_cible.set_index([['p'+str(i) for i in range(nb_detected)]], inplace=True)
+			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2], "number":"p" + str(face_nb), "distance":distance}, ignore_index=True)
+
 		data_cible.dropna(inplace=True)
+		data_copy = data_cible.set_index('number')
+		try:
+			data_copy.to_json(orient='index')
+		except ValueError:
+			remove_dop(data_cible)
+		data_cible.set_index('number', inplace=True)
+		data_cible.drop(['distance'], axis = 1, inplace=True)
+		print(data_cible)
 		message = data_cible.to_json(orient='index')
+		
 
-		#message = json.dumps(data_point, separators=(',', ':'))
+		ws.send(message)
 
-		ws.send(message)	
-
+		
 		if not image is None:
-			cv2.imshow("Output-Keypoints",frameDepth)
+			cv2.imshow("Output-Keypoints",image)
 
 		key = cv2.waitKey(1)
 		if key == 27:
 			ws.close()
-			pd.DataFrame.to_csv(Cible, 'Cible.csv')
 			break
 		
