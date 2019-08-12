@@ -46,11 +46,64 @@ def remove_dop(df):
     return df2
 
 
+"""
+Dataframes of moving average positions for each face
+"""
+p0 = pd.DataFrame([], columns=['x', 'y', 'z'])
+p1 = pd.DataFrame([], columns=['x', 'y', 'z'])
+p2 = pd.DataFrame([], columns=['x', 'y', 'z'])
+p3 = pd.DataFrame([], columns=['x', 'y', 'z'])
+p4 = pd.DataFrame([], columns=['x', 'y', 'z'])
+p5 = pd.DataFrame([], columns=['x', 'y', 'z'])
+
+def associate(nb, x, y, z):
+	if nb == 0:
+		p0.append({'x': x, 'y':y, 'z':z}) 
+	if nb == 1:
+		p1.append({'x': x, 'y':y, 'z':z}) 
+	if nb == 2:
+		p2.append({'x': x, 'y':y, 'z':z}) 
+	if nb == 3:
+		p3.append({'x': x, 'y':y, 'z':z}) 
+	if nb == 4:
+		p4.append({'x': x, 'y':y, 'z':z}) 
+	if nb == 5:
+		p5.append({'x': x, 'y':y, 'z':z}) 
+
+def get_mean(msg):
+	if len(p0) == 3:
+		msg.loc['p0'] = p0.mean()
+		p0.drop([0], inplace=True)
+		p0.reset_index(drop=True)
+	if len(p1) == 3:
+		msg.loc['p1'] = p1.mean()
+		p1.drop([0], inplace=True)
+		p1.reset_index(drop=True)
+	if len(p2) == 3:
+		msg.loc['p2'] = p2.mean()
+		p2.drop([0], inplace=True)
+		p2.reset_index(drop=True)
+	if len(p3) == 3:
+		msg.loc['p3'] = p3.mean()
+		p3.drop([0], inplace=True)
+		p3.reset_index(drop=True)
+	if len(p4) == 3:
+		msg.loc['p4'] = p4.mean()
+		p4.drop([0], inplace=True)
+		p4.reset_index(drop=True)
+	if len(p5) == 3:
+		msg.loc['p5'] = p5.mean()
+		p5.drop([0], inplace=True)
+		p5.reset_index(drop=True)
+
+	return msg
+
 if __name__ == '__main__':
 
 	kinect = AcquisitionKinect()
 	frame = Frame()
 	fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
+	msg = pd.DataFrame([], index=['p0', 'p1', 'p2', 'p3', 'p4', 'p5'], columns=['x', 'y', 'z'])
 
 
 	while True:
@@ -118,14 +171,8 @@ if __name__ == '__main__':
 			cible = left_eye_s + k*z_s
 
 			print("cible", cible)
-			
-			data_point = {
-				"x": cible[0],
-				"y": cible[1],
-				"z": cible[2]
-			}
 
-			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2], "number":"p" + str(face_nb), "distance":distance}, ignore_index=True)
+			data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2], "number":str(face_nb), "distance":distance}, ignore_index=True)
 
 		data_cible.dropna(inplace=True)
 		data_copy = data_cible.set_index('number')
@@ -133,10 +180,12 @@ if __name__ == '__main__':
 			data_copy.to_json(orient='index')
 		except ValueError:
 			remove_dop(data_cible)
-		data_cible.set_index('number', inplace=True)
-		data_cible.drop(['distance'], axis = 1, inplace=True)
-		message = data_cible.to_json(orient='index')
-		print(data_cible)
+		for ind, val in data_cible.iterrows():
+			associate(val['number'], val['x'], val['y'], val['z'])
+
+		msg = get_mean(msg)
+		print(msg)
+		message = msg.to_json(orient='index')
 		
 
 		ws.send(message)
