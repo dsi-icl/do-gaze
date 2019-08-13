@@ -14,6 +14,70 @@ import pandas as pd
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
+class Mov_av:
+	def __init__(self):
+		self.p0 = pd.DataFrame([], columns=['x', 'y', 'z'])
+		self.p1 = pd.DataFrame([], columns=['x', 'y', 'z'])
+		self.p2 = pd.DataFrame([], columns=['x', 'y', 'z'])
+		self.p3 = pd.DataFrame([], columns=['x', 'y', 'z'])
+		self.p4 = pd.DataFrame([], columns=['x', 'y', 'z'])
+		self.p5 = pd.DataFrame([], columns=['x', 'y', 'z'])
+
+	"""
+	Dataframes of moving average positions for each face
+	"""
+	
+	def associate(self, nb, x, y, z):
+		if nb == '0':
+			print('Coucou0')
+			self.p0 = self.p0.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
+		if nb == '1':
+			print('Coucou1')
+			self.p1 = self.p1.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
+		if nb == '2':
+			print('Coucou2')
+			self.p2 = self.p2.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
+		if nb == '3':
+			print('Coucou3')
+			self.p3 = self.p3.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
+		if nb == '4':
+			print('Coucou4')
+			self.p4 = self.p4.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
+		if nb == '5':
+			print('Coucou5')
+			self.p5 = self.p5.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
+	
+	def get_mean(self, msg):
+		if len(self.p0) == 3:
+			msg.loc['p0'] = self.p0.mean()
+			self.p0.drop([0], inplace=True)
+			self.p0.reset_index(drop=True)
+		if len(self.p1) == 3:
+			msg.loc['p1'] = self.p1.mean()
+			self.p1.drop([0], inplace=True)
+			self.p1.reset_index(drop=True)
+		if len(self.p2) == 3:
+			msg.loc['p2'] = self.p2.mean()
+			self.p2.drop([0], inplace=True)
+			self.p2.reset_index(drop=True)
+		if len(self.p3) == 3:
+			msg.loc['p3'] = self.p3.mean()
+			self.p3.drop([0], inplace=True)
+			self.p3.reset_index(drop=True)
+		if len(self.p4) == 3:
+			msg.loc['p4'] = self.p4.mean()
+			self.p4.drop([0], inplace=True)
+			self.p4.reset_index(drop=True)
+		if len(self.p5) == 3:
+			msg.loc['p5'] = self.p5.mean()
+			self.p5.drop([0], inplace=True)
+			self.p5.reset_index(drop=True)
+	
+		return msg
+
+
+# msg will contain all the gazes to send on the server
+mov_ave = Mov_av()
 """
 Compute minimal euclidean distance to link a skeleton to a face
 """
@@ -44,59 +108,6 @@ def remove_dop(df):
                 if row[4] < row2[4]:
                     df2.drop(ind2, axis=0, inplace=True)
     return df2
-
-
-"""
-Dataframes of moving average positions for each face
-"""
-p0 = pd.DataFrame([], columns=['x', 'y', 'z'])
-p1 = pd.DataFrame([], columns=['x', 'y', 'z'])
-p2 = pd.DataFrame([], columns=['x', 'y', 'z'])
-p3 = pd.DataFrame([], columns=['x', 'y', 'z'])
-p4 = pd.DataFrame([], columns=['x', 'y', 'z'])
-p5 = pd.DataFrame([], columns=['x', 'y', 'z'])
-
-def associate(nb, x, y, z):
-	if nb == 0:
-		p0.append({'x': x, 'y':y, 'z':z}) 
-	if nb == 1:
-		p1.append({'x': x, 'y':y, 'z':z}) 
-	if nb == 2:
-		p2.append({'x': x, 'y':y, 'z':z}) 
-	if nb == 3:
-		p3.append({'x': x, 'y':y, 'z':z}) 
-	if nb == 4:
-		p4.append({'x': x, 'y':y, 'z':z}) 
-	if nb == 5:
-		p5.append({'x': x, 'y':y, 'z':z}) 
-
-def get_mean(msg):
-	if len(p0) == 3:
-		msg.loc['p0'] = p0.mean()
-		p0.drop([0], inplace=True)
-		p0.reset_index(drop=True)
-	if len(p1) == 3:
-		msg.loc['p1'] = p1.mean()
-		p1.drop([0], inplace=True)
-		p1.reset_index(drop=True)
-	if len(p2) == 3:
-		msg.loc['p2'] = p2.mean()
-		p2.drop([0], inplace=True)
-		p2.reset_index(drop=True)
-	if len(p3) == 3:
-		msg.loc['p3'] = p3.mean()
-		p3.drop([0], inplace=True)
-		p3.reset_index(drop=True)
-	if len(p4) == 3:
-		msg.loc['p4'] = p4.mean()
-		p4.drop([0], inplace=True)
-		p4.reset_index(drop=True)
-	if len(p5) == 3:
-		msg.loc['p5'] = p5.mean()
-		p5.drop([0], inplace=True)
-		p5.reset_index(drop=True)
-
-	return msg
 
 if __name__ == '__main__':
 
@@ -181,10 +192,12 @@ if __name__ == '__main__':
 		except ValueError:
 			remove_dop(data_cible)
 		for ind, val in data_cible.iterrows():
-			associate(val['number'], val['x'], val['y'], val['z'])
+			print(val['number'], val['x'], val['y'], val['z'])
+			mov_ave.associate(val['number'], val['x'], val['y'], val['z'])
+		print("p0", mov_ave.p0)
 
-		msg = get_mean(msg)
-		print(msg)
+		msg = mov_ave.get_mean(msg)
+		print("msg", msg)
 		message = msg.to_json(orient='index')
 		
 
