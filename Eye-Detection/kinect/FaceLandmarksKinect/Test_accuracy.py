@@ -9,6 +9,7 @@ from frame import Frame
 import face_alignment
 from skimage import io
 import json
+import math
 import websocket
 import pandas as pd
 
@@ -102,7 +103,7 @@ Check same length for list of bodies and list of faces
 def remove_dop(df):
     last = df.iterrows()
     df2 = df
-    for ind, row in last:
+    for _, row in last:
         last2 = df2.iterrows()
         for ind2, row2 in last2:
             if row[3] == row2[3]:
@@ -157,12 +158,14 @@ if __name__ == '__main__':
 			nose_s = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
 			face_nb, distance = face_number(joint, nose_s)
 			
-			x_0 = floor.floorTransform.point_to_transform_space(np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]]))
-			x_1 = floor.floorTransform.point_to_transform_space(np.array([CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][0], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][1], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][2]]))
-			x_1_2 = floor.floorTransform.point_to_transform_space(np.array([CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][0], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][1], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][2]]))
-			y_0 = floor.floorTransform.point_to_transform_space(np.array([CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][0], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][1], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][2]]))
-			y_1 = floor.floorTransform.point_to_transform_space(np.array([CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][0], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][1], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][2]]))
+			x_0_f = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
+			x_0 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]]))
+			x_1 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][0], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][1], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][2]]))
+			x_1_2 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][0], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][1], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][2]]))
+			y_0 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][0], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][1], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][2]]))
+			y_1 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][0], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][1], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][2]]))
 
+			print('Before transformation', x_0_f, 'After transformation', x_0)
 			print("Mapper says here", x_0, x_1)
 			x_s = x_1 - x_0
 			x_s = x_s/(np.linalg.norm(x_s))
