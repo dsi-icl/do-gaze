@@ -12,6 +12,7 @@ import json
 import math
 import websocket
 import pandas as pd
+import time
 
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
@@ -50,30 +51,37 @@ class Mov_av:
 			self.p5 = self.p5.append({'x': x, 'y':y, 'z':z}, ignore_index=True) 
 	
 	def get_mean(self, msg):
-		if len(self.p0) == 3:
-			msg.loc['p0'] = self.p0.mean()
+		while len(self.p0) > 3:
 			self.p0.drop([0], inplace=True)
 			self.p0.reset_index(drop=True)
-		if len(self.p1) == 3:
-			msg.loc['p1'] = self.p1.mean()
+			print("On a drop")
+		if len(self.p0) == 3:
+				msg.loc['p0'] = self.p0.mean()
+		while len(self.p1) > 3:
 			self.p1.drop([0], inplace=True)
 			self.p1.reset_index(drop=True)
-		if len(self.p2) == 3:
-			msg.loc['p2'] = self.p2.mean()
+		if len(self.p1) == 3:
+				msg.loc['p1'] = self.p1.mean()
+		while len(self.p2) > 3:
 			self.p2.drop([0], inplace=True)
 			self.p2.reset_index(drop=True)
-		if len(self.p3) == 3:
-			msg.loc['p3'] = self.p3.mean()
+		if len(self.p2) == 3:
+				msg.loc['p2'] = self.p2.mean()
+		while len(self.p3) > 3:
 			self.p3.drop([0], inplace=True)
 			self.p3.reset_index(drop=True)
-		if len(self.p4) == 3:
-			msg.loc['p4'] = self.p4.mean()
+		if len(self.p3) == 3:
+				msg.loc['p3'] = self.p3.mean()
+		while len(self.p4) > 3:
 			self.p4.drop([0], inplace=True)
 			self.p4.reset_index(drop=True)
-		if len(self.p5) == 3:
-			msg.loc['p5'] = self.p5.mean()
+		if len(self.p4) == 3:
+				msg.loc['p4'] = self.p4.mean()
+		while len(self.p5) > 3:
 			self.p5.drop([0], inplace=True)
 			self.p5.reset_index(drop=True)
+		if len(self.p5) == 3:
+				msg.loc['p5'] = self.p5.mean()
 	
 		return msg
 
@@ -115,11 +123,38 @@ if __name__ == '__main__':
 
 	kinect = AcquisitionKinect()
 	frame = Frame()
+	time.sleep(2)
 	fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
 	msg = pd.DataFrame([], index=['p0', 'p1', 'p2', 'p3', 'p4', 'p5'], columns=['x', 'y', 'z'])
+	experiment = pd.DataFrame([], columns=['x', 'y'])
+	compteur = 0
+	warmup = True
+	timer = True
+	timerA = time.time()
 
+	while warmup:
+		kinect.get_frame(frame)
+		image = kinect._frameRGB
+		frameDepth = kinect._frameDepth
+		kinect.get_eye_camera_space_coord()
+		CameraPoints = kinect.cameraPoints
 
-	while True:
+		image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+		if not image is None:
+				cv2.imshow("Output-Keypoints",image)
+
+		limit = time.time() - timerA
+		if limit > 25:
+			print(limit)
+		if limit > 30:
+			warmup = False
+		
+		key = cv2.waitKey(1)
+		if key == 27:
+			break
+
+	timerB = time.time()
+	while timer:
 		data_cible = pd.DataFrame([], columns=["x", "y", "z", "number", "distance"])
 		kinect.get_frame(frame)
 		kinect.get_color_frame()
@@ -138,7 +173,9 @@ if __name__ == '__main__':
 		# Add movement sensor here (ie when the head doesn't move, don't use get_landmarks)
 		# Use moving average
 
+		test = time.time()
 		preds = fa.get_landmarks(image)
+		print("pb", time.time() - test)
 		nb_detected = len(preds)
 
 		try:
@@ -195,10 +232,12 @@ if __name__ == '__main__':
 		try:
 			data_copy.to_json(orient='index')
 		except ValueError:
-			remove_dop(data_cible)
+			print("ici")
+			data_cible = remove_dop(data_cible)
 		for ind, val in data_cible.iterrows():
 			print(val['number'], val['x'], val['y'], val['z'])
 			mov_ave.associate(val['number'], val['x'], val['y'], val['z'])
+			experiment = experiment.append({'x':val['x'], 'y':val['y']}, ignore_index=True)
 		print("p0", mov_ave.p0)
 
 		msg = mov_ave.get_mean(msg)
@@ -208,9 +247,10 @@ if __name__ == '__main__':
 
 		ws.send(message)
 
-		
-		if not image is None:
-			cv2.imshow("Output-Keypoints",image)
+		timerE = time.time() - timerB
+
+		if timerE > 30:
+			timer = False
 
 		key = cv2.waitKey(1)
 		if key == 27:
