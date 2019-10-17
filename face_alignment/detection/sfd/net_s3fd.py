@@ -22,36 +22,46 @@ class L2Norm(nn.Module):
 class s3fd(nn.Module):
     def __init__(self):
         super(s3fd, self).__init__()
+
         self.conv1_1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
         self.conv1_2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+        self.seq1 = nn.Sequential(self.conv1_1, F.relu, self.conv1_2, F.relu).to('cuda:0')
 
         self.conv2_1 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
         self.conv2_2 = nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1)
+        self.seq2 = nn.Sequential(self.conv2_1, F.relu, self.conv2_2, F.relu).to('cuda:1')
 
         self.conv3_1 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1)
         self.conv3_2 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
         self.conv3_3 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.seq3 = nn.Sequential(self.conv3_1, F.relu, self.conv3_2, F.relu, self.conv3_3, F.relu).to('cuda:2')
 
         self.conv4_1 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
         self.conv4_2 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
         self.conv4_3 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.seq4 = nn.Sequential(self.conv4_1, F.relu, self.conv4_2, F.relu, self.conv4_3, F.relu).to('cuda:3')
 
         self.conv5_1 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
         self.conv5_2 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
         self.conv5_3 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.seq5 = nn.Sequential(self.conv5_1, F.relu, self.conv5_2, F.relu, self.conv5_3, F.relu).to('cuda:0')
 
         self.fc6 = nn.Conv2d(512, 1024, kernel_size=3, stride=1, padding=3)
         self.fc7 = nn.Conv2d(1024, 1024, kernel_size=1, stride=1, padding=0)
+        self.seq6 = nn.Sequential(self.fc6, F.relu, self.fc7, F.relu).to('cuda:1')
 
         self.conv6_1 = nn.Conv2d(1024, 256, kernel_size=1, stride=1, padding=0)
         self.conv6_2 = nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1)
+        self.seq7 = nn.Sequential(self.conv6_1, F.relu, self.conv6_2, F.relu).to('cuda:2')
 
         self.conv7_1 = nn.Conv2d(512, 128, kernel_size=1, stride=1, padding=0)
         self.conv7_2 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1)
+        self.seq8 = nn.Sequential(self.conv7_1, F.relu, self.conv7_2, F.relu).to('cuda:3')
 
         self.conv3_3_norm = L2Norm(256, scale=10)
         self.conv4_3_norm = L2Norm(512, scale=8)
         self.conv5_3_norm = L2Norm(512, scale=5)
+        
 
         self.conv3_3_norm_mbox_conf = nn.Conv2d(256, 4, kernel_size=3, stride=1, padding=1)
         self.conv3_3_norm_mbox_loc = nn.Conv2d(256, 4, kernel_size=3, stride=1, padding=1)
@@ -68,41 +78,25 @@ class s3fd(nn.Module):
         self.conv7_2_mbox_loc = nn.Conv2d(256, 4, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x):
-        h = F.relu(self.conv1_1(x))
-        h = F.relu(self.conv1_2(h))
-        h = F.max_pool2d(h, 2, 2)
 
-        h = F.relu(self.conv2_1(h))
-        h = F.relu(self.conv2_2(h))
-        h = F.max_pool2d(h, 2, 2)
+        h = F.max_pool2d(self.seq1(x), 2, 2).to('cuda:1')
 
-        h = F.relu(self.conv3_1(h))
-        h = F.relu(self.conv3_2(h))
-        h = F.relu(self.conv3_3(h))
-        f3_3 = h
-        h = F.max_pool2d(h, 2, 2)
+        h = F.max_pool2d(self.seq2(h), 2, 2).to('cuda:2')
 
-        h = F.relu(self.conv4_1(h))
-        h = F.relu(self.conv4_2(h))
-        h = F.relu(self.conv4_3(h))
-        f4_3 = h
-        h = F.max_pool2d(h, 2, 2)
+        f3_3 = self.seq3(h)
+        h = F.max_pool2d(f3_3, 2, 2).to('cuda:3')
 
-        h = F.relu(self.conv5_1(h))
-        h = F.relu(self.conv5_2(h))
-        h = F.relu(self.conv5_3(h))
-        f5_3 = h
-        h = F.max_pool2d(h, 2, 2)
+        f4_3 = self.seq4(h)
+        h = F.max_pool2d(f4_3, 2, 2).to('cuda:0')
 
-        h = F.relu(self.fc6(h))
-        h = F.relu(self.fc7(h))
-        ffc7 = h
-        h = F.relu(self.conv6_1(h))
-        h = F.relu(self.conv6_2(h))
-        f6_2 = h
-        h = F.relu(self.conv7_1(h))
-        h = F.relu(self.conv7_2(h))
-        f7_2 = h
+        f5_3 = self.seq5(h)
+        h = F.max_pool2d(f5_3, 2, 2).to('cuda:1')
+
+        ffc7 = self.seq6(h).to('cuda:2')
+
+        f6_2 = self.seq7(ffc7).to('cuda:3')
+
+        f7_2 = self.seq8(f6_2).to('cuda:0')
 
         f3_3 = self.conv3_3_norm(f3_3)
         f4_3 = self.conv4_3_norm(f4_3)
