@@ -62,6 +62,10 @@ class AcquisitionKinect():
 		self.cameraPoints = self._kinect.color_to_camera(self._frameDepth)
 		self._frameDepth = self._frameDepth.reshape(((424, 512))).astype(np.uint16)
 		self._frameDepthQuantized = ((self._frameDepth.astype(np.int32)-500)/8.0).astype(np.uint8)
+
+	#Get Body Frame
+	def get_body_frame(self):
+		return self._bodies
 		
 
 	#Get Camera Coordinates from Joints
@@ -72,7 +76,6 @@ class AcquisitionKinect():
 		for i in range(0, max_body_count):
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
-				print(i)
 				if self.joint_points3D.size == 0:
 					self.joint_points3D = np.array([[body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]]])
 				else:
