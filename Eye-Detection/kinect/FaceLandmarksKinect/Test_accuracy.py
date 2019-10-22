@@ -3,7 +3,7 @@ import numpy as np
 from pykinect2 import PyKinectV2
 from pykinect2.PyKinectV2 import *
 from pykinect2 import PyKinectRuntime
-from acquisitionKinect import AcquisitionKinect
+from acquisitionKinect import AcquisitiaonKinect
 from Floor_space import Floor
 from frame import Frame
 import face_alignment
@@ -12,7 +12,6 @@ import json
 import math
 import websocket
 import pandas as pd
-import time
 
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
@@ -202,8 +201,7 @@ if __name__ == '__main__':
 			y_0 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][0], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][1], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][2]]))
 			y_1 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][0], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][1], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][2]]))
 
-			print('Before transformation', x_0_f, 'After transformation', x_0)
-			print("Mapper says here", x_0, x_1)
+			# Creating face plan and calculating a normal vector to this plan
 			x_s = x_1 - x_0
 			x_s = x_s/(np.linalg.norm(x_s))
 			y_s = y_1 - y_0
