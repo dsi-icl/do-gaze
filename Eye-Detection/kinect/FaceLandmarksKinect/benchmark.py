@@ -3,7 +3,7 @@ import numpy as np
 from pykinect2 import PyKinectV2
 from pykinect2.PyKinectV2 import *
 from pykinect2 import PyKinectRuntime
-from acquisitionKinect import AcquisitiaonKinect
+from acquisitionKinect import AcquisitionKinect
 from Floor_space import Floor
 from frame import Frame
 import face_alignment
@@ -12,77 +12,79 @@ import json
 import math
 import websocket
 import pandas as pd
+import time
 
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
-class Mov_av:
-	def __init__(self):
-		self.p0 = pd.DataFrame([], columns=['x', 'y', 'z'])
-		self.p1 = pd.DataFrame([], columns=['x', 'y', 'z'])
-		self.p2 = pd.DataFrame([], columns=['x', 'y', 'z'])
-		self.p3 = pd.DataFrame([], columns=['x', 'y', 'z'])
-		self.p4 = pd.DataFrame([], columns=['x', 'y', 'z'])
-		self.p5 = pd.DataFrame([], columns=['x', 'y', 'z'])
 
-	"""
-	Dataframes of moving average positions for each face
-	"""
-	
-	def associate(self, nb, x, y, z):
-		if nb == '0':
-			print('Coucou0')
-			self.p0 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
-		if nb == '1':
-			print('Coucou1')
-			self.p1 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
-		if nb == '2':
-			print('Coucou2')
-			self.p2 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z']) 
-		if nb == '3':
-			print('Coucou3')
-			self.p3 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
-		if nb == '4':
-			print('Coucou4')
-			self.p4 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
-		if nb == '5':
-			print('Coucou5')
-			self.p5 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
-	
-	def get_mean(self, msg):
-		while len(self.p0) > 3:
-			self.p0.drop([0], inplace=True)
-			self.p0.reset_index(drop=True)
-			print("On a drop")
-		if len(self.p0) == 3:
-				msg.loc['p0'] = self.p0.mean()
-		while len(self.p1) > 3:
-			self.p1.drop([0], inplace=True)
-			self.p1.reset_index(drop=True)
-		if len(self.p1) == 3:
-				msg.loc['p1'] = self.p1.mean()
-		while len(self.p2) > 3:
-			self.p2.drop([0], inplace=True)
-			self.p2.reset_index(drop=True)
-		if len(self.p2) == 3:
-				msg.loc['p2'] = self.p2.mean()
-		while len(self.p3) > 3:
-			self.p3.drop([0], inplace=True)
-			self.p3.reset_index(drop=True)
-		if len(self.p3) == 3:
-				msg.loc['p3'] = self.p3.mean()
-		while len(self.p4) > 3:
-			self.p4.drop([0], inplace=True)
-			self.p4.reset_index(drop=True)
-		if len(self.p4) == 3:
-				msg.loc['p4'] = self.p4.mean()
-		while len(self.p5) > 3:
-			self.p5.drop([0], inplace=True)
-			self.p5.reset_index(drop=True)
-		if len(self.p5) == 3:
-				msg.loc['p5'] = self.p5.mean()
-	
-		return msg
+class Mov_av:
+    def __init__(self):
+        self.p0 = pd.DataFrame([], columns=['x', 'y', 'z'])
+        self.p1 = pd.DataFrame([], columns=['x', 'y', 'z'])
+        self.p2 = pd.DataFrame([], columns=['x', 'y', 'z'])
+        self.p3 = pd.DataFrame([], columns=['x', 'y', 'z'])
+        self.p4 = pd.DataFrame([], columns=['x', 'y', 'z'])
+        self.p5 = pd.DataFrame([], columns=['x', 'y', 'z'])
+
+    """
+    Dataframes of moving average positions for each face
+    """
+
+    def associate(self, nb, x, y, z):
+        if nb == '0':
+            print('Coucou0')
+            self.p0 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+        if nb == '1':
+            print('Coucou1')
+            self.p1 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+        if nb == '2':
+            print('Coucou2')
+            self.p2 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+        if nb == '3':
+            print('Coucou3')
+            self.p3 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+        if nb == '4':
+            print('Coucou4')
+            self.p4 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+        if nb == '5':
+            print('Coucou5')
+            self.p5 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+
+    def get_mean(self, msg):
+        while len(self.p0) > 3:
+            self.p0.drop([0], inplace=True)
+            self.p0.reset_index(drop=True)
+            print("On a drop")
+        if len(self.p0) == 3:
+                msg.loc['p0'] = self.p0.mean()
+        while len(self.p1) > 3:
+            self.p1.drop([0], inplace=True)
+            self.p1.reset_index(drop=True)
+        if len(self.p1) == 3:
+                msg.loc['p1'] = self.p1.mean()
+        while len(self.p2) > 3:
+            self.p2.drop([0], inplace=True)
+            self.p2.reset_index(drop=True)
+        if len(self.p2) == 3:
+                msg.loc['p2'] = self.p2.mean()
+        while len(self.p3) > 3:
+            self.p3.drop([0], inplace=True)
+            self.p3.reset_index(drop=True)
+        if len(self.p3) == 3:
+                msg.loc['p3'] = self.p3.mean()
+        while len(self.p4) > 3:
+            self.p4.drop([0], inplace=True)
+            self.p4.reset_index(drop=True)
+        if len(self.p4) == 3:
+                msg.loc['p4'] = self.p4.mean()
+        while len(self.p5) > 3:
+            self.p5.drop([0], inplace=True)
+            self.p5.reset_index(drop=True)
+        if len(self.p5) == 3:
+                msg.loc['p5'] = self.p5.mean()
+
+        return msg
 
 
 # msg will contain all the gazes to send on the server
@@ -91,22 +93,26 @@ mov_ave = Mov_av()
 Compute minimal euclidean distance to link a skeleton to a face
 """
 
+
 def face_number(list_skeleton, nose_s):
-	min_ = None
-	nb_skel = len(list_skeleton)
-	for i in range(nb_skel):
-		distance = np.linalg.norm(list_skeleton[i] - nose_s)
-		if min_ is None:
-			min_ = i
-			distance_m = distance
-		elif distance < distance_m:
-			min_ = i
-			distance_m = distance
-	return min_, distance_m
+    min_ = None
+    nb_skel = len(list_skeleton)
+    for i in range(nb_skel):
+        distance = np.linalg.norm(list_skeleton[i] - nose_s)
+        if min_ is None:
+            min_ = i
+            distance_m = distance
+        elif distance < distance_m:
+            min_ = i
+            distance_m = distance
+    return min_, distance_m
+
 
 """
 Check same length for list of bodies and list of faces
 """
+
+
 def remove_dop(df):
     last = df.iterrows()
     df2 = df
@@ -118,19 +124,21 @@ def remove_dop(df):
                     df2.drop(ind2, axis=0, inplace=True)
     return df2
 
+
 if __name__ == '__main__':
 
-	kinect = AcquisitionKinect()
-	frame = Frame()
-	time.sleep(2)
-	fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
-	msg = pd.DataFrame([], index=['p0', 'p1', 'p2', 'p3', 'p4', 'p5'], columns=['x', 'y', 'z'])
-	experiment = pd.DataFrame([], columns=['x', 'y'])
-	compteur = 0
+    kinect = AcquisitionKinect()
+    frame = Frame()
+    time.sleep(2)
+    fa = face_alignment.FaceAlignment(
+        face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
+    msg = pd.DataFrame([], index=['p0', 'p1', 'p2', 'p3',
+                    'p4', 'p5'], columns=['x', 'y', 'z'])
+    experiment = pd.DataFrame([], columns=['x', 'y'])
+    compteur = 0
+    timer = True
     timerB = time.time()
-	timer = True
-
-	while timer:
+    while timer:
         timerB1 = time.time()
         timeA = timerB1 - timerB
         if timeA > 30:
@@ -146,7 +154,7 @@ if __name__ == '__main__':
             floor = Floor(kinect._bodies)
 
 
-            #OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
+            # OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
             image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
             # Add movement sensor here (ie when the head doesn't move, don't use get_landmarks)
@@ -154,37 +162,40 @@ if __name__ == '__main__':
 
             if compteur == 2:
                 test = time.time()
-                face_2 = fa.get_landmarks(image)
+                face_2 = np.asarray(fa.get_landmarks(image))
                 print("pb", time.time() - test)
-                nb_detected = len(preds)
-                compteur += 1
-                preds = (face_0+face_1+face_2)/3
-                try:
-                    assert len(joint) == nb_detected
-                except:
-                    print("Error between the number of faces detected and the number of skeletons")
+                if face_2 != []:
+                    nb_detected = len(face_2)
+                    compteur += 1
+                    preds = (face_0+face_1+face_2)/3
+                    try:
+                        assert len(joint) == nb_detected
+                    except:
+                        print("Error between the number of faces detected and the number of skeletons")
 
             elif compteur == 1:
                 test = time.time()
-                face_1 = fa.get_landmarks(image)
+                face_1 = np.asarray(fa.get_landmarks(image))
                 print("pb", time.time() - test)
-                nb_detected = len(preds)
-                compteur += 1
-                try:
-                    assert len(joint) == nb_detected
-                except:
-                    print("Error between the number of faces detected and the number of skeletons")
+                if face_1 != []:
+                    nb_detected = len(face_1)
+                    compteur += 1
+                    try:
+                        assert len(joint) == nb_detected
+                    except:
+                        print("Error between the number of faces detected and the number of skeletons")
 
             elif compteur == 0:
                 test = time.time()
-                face_0 = fa.get_landmarks(image)
+                face_0 = np.asarray(fa.get_landmarks(image))
                 print("pb", time.time() - test)
-                nb_detected = len(preds)
-                compteur += 1
-                try:
-                    assert len(joint) == nb_detected
-                except:
-                    print("Error between the number of faces detected and the number of skeletons")
+                if face_0 != []:
+                    nb_detected = len(face_0)
+                    compteur += 1
+                    try:
+                        assert len(joint) == nb_detected
+                    except:
+                        print("Error between the number of faces detected and the number of skeletons")
 
             elif compteur == 3:
                 face_0 = face_1
@@ -224,13 +235,7 @@ if __name__ == '__main__':
 
                     k = - left_eye_s[2]/z_s[2]
 
-                    case = len(joint)
-                    if case > 0:
-                        print("Your face is here", joint)
-
                     cible = left_eye_s + k*z_s
-
-                    print("cible", cible)
 
                     data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2], "number":str(face_nb), "distance":distance}, ignore_index=True)
 
@@ -244,18 +249,15 @@ if __name__ == '__main__':
                 for ind, val in data_cible.iterrows():
                     print(val['number'], val['x'], val['y'], val['z'])
                     mov_ave.associate(val['number'], val['x'], val['y'], val['z'])
-                print("p0", mov_ave.p0)
 
                 msg = mov_ave.p0
-                print("msg", msg)
                 message = msg.to_json(orient='index')
-                
 
                 ws.send(message)
 
                 timerE = time.time() - timerB
 
-                if timerE > 60:
+                if timerE > 90:
                     timer = False
 
                 key = cv2.waitKey(1)
