@@ -20,12 +20,13 @@ ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
 class Mov_av:
     def __init__(self):
-        self.p0 = pd.DataFrame([], columns=['x', 'y', 'z'])
-        self.p1 = pd.DataFrame([], columns=['x', 'y', 'z'])
-        self.p2 = pd.DataFrame([], columns=['x', 'y', 'z'])
-        self.p3 = pd.DataFrame([], columns=['x', 'y', 'z'])
-        self.p4 = pd.DataFrame([], columns=['x', 'y', 'z'])
-        self.p5 = pd.DataFrame([], columns=['x', 'y', 'z'])
+        
+        self.p0 = np.array([0,0,0])
+        self.p1 = np.array([0,0,0])
+        self.p2 = np.array([0,0,0])
+        self.p3 = np.array([0,0,0])
+        self.p4 = np.array([0,0,0])
+        self.p5 = np.array([0,0,0])
 
     """
     Dataframes of moving average positions for each face
@@ -34,57 +35,23 @@ class Mov_av:
     def associate(self, nb, x, y, z):
         if nb == '0':
             print('Coucou0')
-            self.p0 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+            self.p0 = self.p5 = np.array([x,y,z])
         if nb == '1':
             print('Coucou1')
-            self.p1 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+            self.p1 = self.p5 = np.array([x,y,z])
         if nb == '2':
             print('Coucou2')
-            self.p2 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+            self.p2 = self.p5 = np.array([x,y,z])
         if nb == '3':
             print('Coucou3')
-            self.p3 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+            self.p3 = self.p5 = np.array([x,y,z])
         if nb == '4':
             print('Coucou4')
-            self.p4 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+            self.p4 = self.p5 = np.array([x,y,z])
         if nb == '5':
             print('Coucou5')
-            self.p5 = pd.DataFrame([[x, y, z]], columns=['x', 'y', 'z'])
+            self.p5 = self.p5 = np.array([x,y,z])
 
-    def get_mean(self, msg):
-        while len(self.p0) > 3:
-            self.p0.drop([0], inplace=True)
-            self.p0.reset_index(drop=True)
-            print("On a drop")
-        if len(self.p0) == 3:
-                msg.loc['p0'] = self.p0.mean()
-        while len(self.p1) > 3:
-            self.p1.drop([0], inplace=True)
-            self.p1.reset_index(drop=True)
-        if len(self.p1) == 3:
-                msg.loc['p1'] = self.p1.mean()
-        while len(self.p2) > 3:
-            self.p2.drop([0], inplace=True)
-            self.p2.reset_index(drop=True)
-        if len(self.p2) == 3:
-                msg.loc['p2'] = self.p2.mean()
-        while len(self.p3) > 3:
-            self.p3.drop([0], inplace=True)
-            self.p3.reset_index(drop=True)
-        if len(self.p3) == 3:
-                msg.loc['p3'] = self.p3.mean()
-        while len(self.p4) > 3:
-            self.p4.drop([0], inplace=True)
-            self.p4.reset_index(drop=True)
-        if len(self.p4) == 3:
-                msg.loc['p4'] = self.p4.mean()
-        while len(self.p5) > 3:
-            self.p5.drop([0], inplace=True)
-            self.p5.reset_index(drop=True)
-        if len(self.p5) == 3:
-                msg.loc['p5'] = self.p5.mean()
-
-        return msg
 
 
 # msg will contain all the gazes to send on the server
@@ -112,17 +79,20 @@ def face_number(list_skeleton, nose_s):
 Check same length for list of bodies and list of faces
 """
 
-
-def remove_dop(df):
-    last = df.iterrows()
-    df2 = df
-    for _, row in last:
-        last2 = df2.iterrows()
-        for ind2, row2 in last2:
-            if row[3] == row2[3]:
-                if row[4] < row2[4]:
-                    df2.drop(ind2, axis=0, inplace=True)
-    return df2
+def remove_dop_np(arrn):
+    copy = arrn
+    n = len(arrn)
+    for i in range(n-1):
+        pers = arrn[i][3]
+        dist = arrn[i][4]
+        for j in range(i+1, n):
+            testeur = arrn[j]
+            if pers == testeur[3]:
+                if dist < testeur[4]:
+                    copy = np.delete(copy, j, 0)
+                else:
+                    copy = np.delete(copy, i, 0)
+    return copy
 
 
 if __name__ == '__main__':
@@ -143,6 +113,7 @@ if __name__ == '__main__':
         timeA = timerB1 - timerB
         if timeA > 30:
             data_cible = pd.DataFrame([], columns=["x", "y", "z", "number", "distance"])
+            data_cible = np.array([[0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
             image = kinect._frameRGB
@@ -237,22 +208,18 @@ if __name__ == '__main__':
 
                     cible = left_eye_s + k*z_s
 
-                    data_cible = data_cible.append({"x":cible[0], "y":cible[1], "z":cible[2], "number":str(face_nb), "distance":distance}, ignore_index=True)
+                    data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance]])
 
-                data_cible.dropna(inplace=True)
-                data_copy = data_cible.set_index('number')
-                try:
-                    data_copy.to_json(orient='index')
-                except ValueError:
-                    print("ici")
-                    data_cible = remove_dop(data_cible)
-                for ind, val in data_cible.iterrows():
-                    print(val['number'], val['x'], val['y'], val['z'])
-                    mov_ave.associate(val['number'], val['x'], val['y'], val['z'])
+                data_cible = np.delete(data_cible, 0, 0)
+                data_cible = data_cible[~np.isnan(data_cible).any(axis=1)]
+                data_cible = remove_dop_np(data_cible)
+                data_cible = data_cible[data_cible[:,3].argsort()]
 
-                msg = mov_ave.p0
-                message = msg.to_json(orient='index')
+                message = {}
+                for i in range(len(data_cible)):
+                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2]}}
 
+                print("message", message)
                 ws.send(message)
 
                 timerE = time.time() - timerB
