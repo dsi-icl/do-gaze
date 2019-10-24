@@ -56,6 +56,38 @@ def remove_dop_np(arrn):
                     copy = np.delete(copy, i, 0)
     return copy
 
+"""
+Create face plan
+"""
+def face_plan(CP, preds):
+    x_0_pre = CP[int(preds[k][36,1]), int(preds[k][36,0])
+    x_1_pre = CP[int(preds[k][45,1]), int(preds[k][45,0])
+    x_1_2_pre = CP[int(preds[k][42,1]), int(preds[k][42,0])
+    y_0_pre = CP[int(preds[k][51,1]), int(preds[k][51,0])
+    y_1_pre = CP[int(preds[k][27,1]), int(preds[k][27,0])
+
+    x_0 = floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]]))
+    x_1 = floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]]))
+    x_1_2= floor.point_to_transform_space(np.array([x_1_2_pre[0], x_1_2_pre[1], x_1_2_pre[2]]))
+    y_0 = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
+    y_1 = floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]]))
+
+    x_s = x_1 - x_0
+    x_s = x_s/(np.linalg.norm(x_s))
+    y_s = y_1 - y_0
+    y_s = y_s/(np.linalg.norm(y_s))
+    z_s = np.cross(x_s, y_s)
+
+    left_eye_s = (x_1+x_1_2)//2
+
+    if z_s[2] > 0:
+        z_s = z_s * (-1)
+
+    k = - left_eye_s[2]/z_s[2]
+    cible = left_eye_s + k*z_s
+
+    return(cible)
+
 
 if __name__ == '__main__':
 
@@ -143,27 +175,7 @@ if __name__ == '__main__':
                     nose_s = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
                     face_nb, distance = face_number(joint, nose_s)
                     
-                    x_0 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]]))
-                    x_1 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][0], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][1], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][2]]))
-                    x_1_2 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][0], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][1], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][2]]))
-                    y_0 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][0], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][1], CameraPoints[int(preds[k][51,1]), int(preds[k][51,0])][2]]))
-                    y_1 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][0], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][1], CameraPoints[int(preds[k][27,1]), int(preds[k][27,0])][2]]))
-
-                    # Creating face plan and calculating a normal vector to this plan
-                    x_s = x_1 - x_0
-                    x_s = x_s/(np.linalg.norm(x_s))
-                    y_s = y_1 - y_0
-                    y_s = y_s/(np.linalg.norm(y_s))
-                    z_s = np.cross(x_s, y_s)
-
-                    left_eye_s = (x_1+x_1_2)//2
-
-                    if z_s[2] > 0:
-                        z_s = z_s * (-1)
-
-                    k = - left_eye_s[2]/z_s[2]
-
-                    cible = left_eye_s + k*z_s
+                    cible = face_plan(CameraPoints, preds)
 
                     data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance]], axis=0)
 
