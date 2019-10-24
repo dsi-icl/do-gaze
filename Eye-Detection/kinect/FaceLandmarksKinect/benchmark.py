@@ -18,44 +18,6 @@ ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
 
-class Mov_av:
-    def __init__(self):
-        
-        self.p0 = np.array([0,0,0])
-        self.p1 = np.array([0,0,0])
-        self.p2 = np.array([0,0,0])
-        self.p3 = np.array([0,0,0])
-        self.p4 = np.array([0,0,0])
-        self.p5 = np.array([0,0,0])
-
-    """
-    Dataframes of moving average positions for each face
-    """
-
-    def associate(self, nb, x, y, z):
-        if nb == '0':
-            print('Coucou0')
-            self.p0 = self.p5 = np.array([x,y,z])
-        if nb == '1':
-            print('Coucou1')
-            self.p1 = self.p5 = np.array([x,y,z])
-        if nb == '2':
-            print('Coucou2')
-            self.p2 = self.p5 = np.array([x,y,z])
-        if nb == '3':
-            print('Coucou3')
-            self.p3 = self.p5 = np.array([x,y,z])
-        if nb == '4':
-            print('Coucou4')
-            self.p4 = self.p5 = np.array([x,y,z])
-        if nb == '5':
-            print('Coucou5')
-            self.p5 = self.p5 = np.array([x,y,z])
-
-
-
-# msg will contain all the gazes to send on the server
-mov_ave = Mov_av()
 """
 Compute minimal euclidean distance to link a skeleton to a face
 """
@@ -102,9 +64,6 @@ if __name__ == '__main__':
     time.sleep(2)
     fa = face_alignment.FaceAlignment(
         face_alignment.LandmarksType._2D, flip_input=False, device="cuda")
-    msg = pd.DataFrame([], index=['p0', 'p1', 'p2', 'p3',
-                    'p4', 'p5'], columns=['x', 'y', 'z'])
-    experiment = pd.DataFrame([], columns=['x', 'y'])
     compteur = 0
     timer = True
     timerB = time.time()
@@ -112,7 +71,6 @@ if __name__ == '__main__':
         timerB1 = time.time()
         timeA = timerB1 - timerB
         if timeA > 30:
-            data_cible = pd.DataFrame([], columns=["x", "y", "z", "number", "distance"])
             data_cible = np.array([[0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
@@ -185,7 +143,6 @@ if __name__ == '__main__':
                     nose_s = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
                     face_nb, distance = face_number(joint, nose_s)
                     
-                    x_0_f = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
                     x_0 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]]))
                     x_1 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][0], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][1], CameraPoints[int(preds[k][45,1]), int(preds[k][45,0])][2]]))
                     x_1_2 = floor.point_to_transform_space(np.array([CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][0], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][1], CameraPoints[int(preds[k][42,1]), int(preds[k][42,0])][2]]))
@@ -208,7 +165,7 @@ if __name__ == '__main__':
 
                     cible = left_eye_s + k*z_s
 
-                    data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance]])
+                    data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance]], axis=0)
 
                 data_cible = np.delete(data_cible, 0, 0)
                 data_cible = data_cible[~np.isnan(data_cible).any(axis=1)]
@@ -217,9 +174,10 @@ if __name__ == '__main__':
 
                 message = {}
                 for i in range(len(data_cible)):
-                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2]}}
+                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2]}
 
                 print("message", message)
+                message = json.dumps(message)
                 ws.send(message)
 
                 timerE = time.time() - timerB
