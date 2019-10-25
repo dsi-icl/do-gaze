@@ -59,12 +59,12 @@ def remove_dop_np(arrn):
 """
 Create face plan
 """
-def face_plan(CP, preds):
-    x_0_pre = CP[int(preds[k][36,1]), int(preds[k][36,0])
-    x_1_pre = CP[int(preds[k][45,1]), int(preds[k][45,0])
-    x_1_2_pre = CP[int(preds[k][42,1]), int(preds[k][42,0])
-    y_0_pre = CP[int(preds[k][51,1]), int(preds[k][51,0])
-    y_1_pre = CP[int(preds[k][27,1]), int(preds[k][27,0])
+def face_plan(CP, face):
+    x_0_pre = CP[int(face[36,1]), int(face[36,0])]
+    x_1_pre = CP[int(face[45,1]), int(face[45,0])]
+    x_1_2_pre = CP[int(face[42,1]), int(face[42,0])]
+    y_0_pre = CP[int(face[51,1]), int(face[51,0])]
+    y_1_pre = CP[int(face[27,1]), int(face[27,0])]
 
     x_0 = floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]]))
     x_1 = floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]]))
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     while timer:
         timerB1 = time.time()
         timeA = timerB1 - timerB
-        if timeA > 30:
+        if timeA > 5:
             data_cible = np.array([[0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
@@ -110,7 +110,7 @@ if __name__ == '__main__':
             frameDepth = kinect._frameDepth
             kinect.get_eye_camera_space_coord()
             joint = kinect.joint_points3D
-            print("List of bodies", joint)
+            # print("List of bodies", joint)
             CameraPoints = kinect.cameraPoints
             floor = Floor(kinect._bodies)
 
@@ -164,6 +164,7 @@ if __name__ == '__main__':
                 compteur -= 1
 
                 for k in range(nb_detected):
+                    face = preds[k]
                     # draw all faces
                     # for i in range(68):
                     # 	cv2.circle(image, (preds[k][i,0], preds[k][i,1]), 3, (255, 0, 0), -1)
@@ -172,10 +173,10 @@ if __name__ == '__main__':
                     # right_eye = (preds[k][45,:] + preds[k][42,:])//2
 
                     # 
-                    nose_s = np.array([CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][0], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][1], CameraPoints[int(preds[k][36,1]), int(preds[k][36,0])][2]])
+                    nose_s = np.array([CameraPoints[int(face[36,1]), int(face[36,0])][0], CameraPoints[int(face[36,1]), int(face[36,0])][1], CameraPoints[int(face[36,1]), int(face[36,0])][2]])
                     face_nb, distance = face_number(joint, nose_s)
                     
-                    cible = face_plan(CameraPoints, preds)
+                    cible = face_plan(CameraPoints, face)
 
                     data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance]], axis=0)
 
@@ -192,13 +193,13 @@ if __name__ == '__main__':
                 message = json.dumps(message)
                 ws.send(message)
 
-                timerE = time.time() - timerB
+            timerE = time.time() - timerB
 
-                if timerE > 90:
-                    timer = False
+            if timerE > 90:
+                timer = False
 
-                key = cv2.waitKey(1)
-                if key == 27:
-                    ws.close()
-                    break
+            key = cv2.waitKey(1)
+            if key == 27:
+                ws.close()
+                break
                 
