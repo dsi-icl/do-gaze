@@ -9,36 +9,38 @@ background-color: #444;
 
 <body>
     <div>
-        <span>X0 Pos: <em id="xposp0">-</em></span></br>
-        <span>Y0 Pos: <em id="yposp0">-</em></span></br>
+        <span>X0 Pos: <em id="xpos0">-</em></span></br>
+        <span>Y0 Pos: <em id="ypos0">-</em></span></br>
 
-        <span>X1 Pos: <em id="xposp1">-</em></span></br>
-        <span>Y1 Pos: <em id="yposp1">-</em></span></br>
+        <span>X1 Pos: <em id="xpos1">-</em></span></br>
+        <span>Y1 Pos: <em id="ypos1">-</em></span></br>
 
-        <span>X2 Pos: <em id="xposp2">-</em></span></br>
-        <span>Y2 Pos: <em id="yposp2">-</em></span></br>
+        <span>X2 Pos: <em id="xpos2">-</em></span></br>
+        <span>Y2 Pos: <em id="ypos2">-</em></span></br>
 
-        <span>X3 Pos: <em id="xposp3">-</em></span></br>
-        <span>Y3 Pos: <em id="yposp3">-</em></span></br>
+        <span>X0_k Pos: <em id="xpos0_k">-</em></span></br>
+        <span>Y0_k Pos: <em id="ypos0_k">-</em></span></br>
 
-        <span>X4 Pos: <em id="xposp4">-</em></span></br>
-        <span>Y4 Pos: <em id="yposp4">-</em></span></br>
+        <span>X1_k Pos: <em id="xpos1_k">-</em></span></br>
+        <span>Y1_k Pos: <em id="ypos1_k">-</em></span></br>
 
-        <span>X5 Pos: <em id="xposp5">-</em></span></br>
-        <span>Y5 Pos: <em id="yposp5">-</em></span></br>
+        <span>X2_k Pos: <em id="xpos2_k">-</em></span></br>
+        <span>Y2_k Pos: <em id="ypos2_k">-</em></span></br>
     </div>
     <svg style="position: absolute; top: 0px; left: 0px; border: none; height: 100vh; width: 100vw">
-        <circle id="circlep0" cx='0' cy='0' r="30" stroke="green" fill="red" />
-        <circle id="circlep1" cx='0' cy='0' r="30" stroke="red" fill="blue" />
-        <circle id="circlep2" cx='0' cy='0' r="30" stroke="yellow" fill="green" />
-        <circle id="circlep3" cx='0' cy='0' r="30" stroke="cyan" fill="white" />
-        <circle id="circlep4" cx='0' cy='0' r="30" stroke="green" fill="red" />
-        <circle id="circlep5" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circle0" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circle1" cx='0' cy='0' r="30" stroke="red" fill="blue" />
+        <circle id="circle2" cx='0' cy='0' r="30" stroke="yellow" fill="green" />
+        <circle id="circle0_k" cx='0' cy='0' r="30" stroke="cyan" fill="white" />
+        <circle id="circle1_k" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circle2_k" cx='0' cy='0' r="30" stroke="green" fill="red" />
     </svg>
     <script>
         const coord = new URLSearchParams(window.location.search);
         const screen_x = coord.getAll('x');
         const screen_y = coord.getAll('y');
+        const node_length = coord.getAll('l');
+        const theta = coord.getAll('theta');
         const canva_y = document.getElementsByTagName('svg')[0].clientHeight
         const canva_x = document.getElementsByTagName('svg')[0].clientWidth
         var ws = new WebSocket((window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host);
@@ -60,6 +62,20 @@ background-color: #444;
                     document.getElementById('ypos'+key).innerText = Math.round((screen_y - pos[key].y)*canva_y/0.633);
                     document.getElementById('circle'+key).setAttribute('cx', Math.round((pos[key].x - screen_x)*canva_x/1.105));
                     document.getElementById('circle'+key).setAttribute('cy', Math.round((screen_y - pos[key].y)*canva_y/0.633));
+                    
+                    d = Math.sqrt(Math.pow(pos[key].x - screen_x, 2) + Math.pow(pos[key].y - screen_y, 2));
+                    d_k = Math.sqrt(Math.pow(pos[key].x_k - screen_x, 2) + Math.pow(pos[key].y_k - screen_y, 2));
+                    alpha = Math.asin(d/(2*r));
+                    alpha_k = Math.asin(d_k/(2*r));
+                    document.getElementById('xpos'+key).innerText = Math.round(alpha*l/theta);
+                    document.getElementById('ypos'+key).innerText = Math.round(pos[key].z);
+                    document.getElementById('circle'+key).setAttribute('cx', Math.round(alpha*l/theta));
+                    document.getElementById('circle'+key).setAttribute('cy', Math.round(pos[key].z));
+
+                    document.getElementById('xpos'+key+'_k').innerText = Math.round(alpha_k*l/theta);
+                    document.getElementById('ypos'+key+'_k').innerText = Math.round(pos[key].z_k);
+                    document.getElementById('circle'+key+'_k').setAttribute('cx', Math.round(alpha_k*l/theta));
+                    document.getElementById('circle'+key+'_k').setAttribute('cy', Math.round(pos[key].z_k));
                 }
             }
             
