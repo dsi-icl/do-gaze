@@ -116,14 +116,14 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
 
 if __name__ == '__main__':
 
-    kinect_position = (0, 0, 0)
+    kinect_position = (0.878, 0.479, 2.515)
 
     # Information about the GDO geometry
     # Vision span is 313 degrees
     r = 3
     theta_node_1 = 3*313*math.pi/(180*16)
     theta_node_2 = 313*math.pi/(180*4)
-    theta_kinect = 123*math.pi/180
+    theta_kinect = 0.5
     R = np.array([[math.cos(theta_kinect), math.sin(theta_kinect), 0], \
                 [- math.sin(theta_kinect), math.cos(theta_kinect), 0], \
                 [0, 0, 1]])
