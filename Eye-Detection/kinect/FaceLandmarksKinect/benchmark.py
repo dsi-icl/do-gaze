@@ -14,8 +14,8 @@ import websocket
 import pandas as pd
 import time
 
-ws = websocket.WebSocket()
-ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
+# ws = websocket.WebSocket()
+# ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
 
 """
@@ -99,10 +99,11 @@ if __name__ == '__main__':
     compteur = 0
     timer = True
     timerB = time.time()
+    faces = [0 for i in range(3)]
     while timer:
         timerB1 = time.time()
         timeA = timerB1 - timerB
-        if timeA > 5:
+        if timeA > 30:
             data_cible = np.array([[0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
@@ -123,44 +124,25 @@ if __name__ == '__main__':
 
             if compteur == 2:
                 test = time.time()
-                face_2 = np.asarray(fa.get_landmarks(image))
+                faces[2] = np.asarray(fa.get_landmarks(image))
                 print("pb", time.time() - test)
-                if face_2 != []:
-                    nb_detected = len(face_2)
-                    compteur += 1
-                    preds = (face_0+face_1+face_2)/3
-                    try:
-                        assert len(joint) == nb_detected
-                    except:
-                        print("Error between the number of faces detected and the number of skeletons")
-
-            elif compteur == 1:
-                test = time.time()
-                face_1 = np.asarray(fa.get_landmarks(image))
-                print("pb", time.time() - test)
-                if face_1 != []:
-                    nb_detected = len(face_1)
+                if faces[2] != []:
+                    nb_detected = len(faces[2])
                     compteur += 1
                     try:
                         assert len(joint) == nb_detected
                     except:
                         print("Error between the number of faces detected and the number of skeletons")
-
-            elif compteur == 0:
-                test = time.time()
-                face_0 = np.asarray(fa.get_landmarks(image))
-                print("pb", time.time() - test)
-                if face_0 != []:
-                    nb_detected = len(face_0)
-                    compteur += 1
+                        compteur -= 1
                     try:
-                        assert len(joint) == nb_detected
+                        preds = (faces[0]+faces[1]+faces[2])/3
                     except:
-                        print("Error between the number of faces detected and the number of skeletons")
+                        print("Average not possible due to a change in the number of people detected")
+                        compteur = 0
 
             elif compteur == 3:
-                face_0 = face_1
-                face_1 = face_2
+                faces[0] = faces[1]
+                faces[1] = faces[2]
                 compteur -= 1
 
                 for k in range(nb_detected):
@@ -193,6 +175,18 @@ if __name__ == '__main__':
                 message = json.dumps(message)
                 ws.send(message)
 
+            else:
+                test = time.time()
+                faces[compteur] = np.asarray(fa.get_landmarks(image))
+                print("pb", time.time() - test)
+                if faces[compteur] != []:
+                    nb_detected = len(faces[compteur])
+                    compteur += 1
+                    try:
+                        assert len(joint) == nb_detected
+                    except:
+                        print("Error between the number of faces detected and the number of skeletons")
+                        compteur -= 1
             timerE = time.time() - timerB
 
             if timerE > 90:
