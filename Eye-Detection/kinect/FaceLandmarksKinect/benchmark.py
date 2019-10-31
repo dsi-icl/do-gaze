@@ -14,8 +14,8 @@ import websocket
 import pandas as pd
 import time
 
-# ws = websocket.WebSocket()
-# ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
+ws = websocket.WebSocket()
+ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
 
 """
@@ -121,12 +121,12 @@ if __name__ == '__main__':
     # Information about the GDO geometry
     # Vision span is 313 degrees
     r = 3
-    theta_node_1 = 3*313*pi/(180*16)
-    theta_node_2 = 313*pi/(180*4)
-    theta_kinect = 123
-    R = np.array([math.cos(theta_kinect), math.sin(theta_kinect), 0], \
+    theta_node_1 = 3*313*math.pi/(180*16)
+    theta_node_2 = 313*math.pi/(180*4)
+    theta_kinect = 123*math.pi/180
+    R = np.array([[math.cos(theta_kinect), math.sin(theta_kinect), 0], \
                 [- math.sin(theta_kinect), math.cos(theta_kinect), 0], \
-                [0, 0, 1])
+                [0, 0, 1]])
 
     kinect = AcquisitionKinect()
     frame = Frame()
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     while timer:
         timerB1 = time.time()
         timeA = timerB1 - timerB
-        if timeA > 5:
+        if timeA > 15:
             data_cible = np.array([[0,0,0,0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
@@ -191,10 +191,11 @@ if __name__ == '__main__':
                     # The right eye is defined by being the centor of two landmarks
                     # right_eye = (preds[k][45,:] + preds[k][42,:])//2
 
-
+                    nose_s = np.array([CameraPoints[int(face[36,1]), int(face[36,0])][0], CameraPoints[int(face[36,1]), int(face[36,0])][1], CameraPoints[int(face[36,1]), int(face[36,0])][2]])
                     face_nb, distance = face_number(joint, nose_s)
                     # getting the coefficient that we will use for the gaze estimation (using only the kinect) 
-                    if kinect_direction not None:
+                    try:
+                        len(kinect_direction)
                         body = np.array([joint[face_nb][0], joint[face_nb][1], joint[face_nb][2]])
                         body = np.dot(floor.point_to_transform_space(body), R) + kinect_position
                         kinect_direction = np.dot(kinect_direction, R)
@@ -211,9 +212,10 @@ if __name__ == '__main__':
                         else:
                             sol = k
                         cible_k = body + sol*kinect_direction
+                    except TypeError:
+                        print("problem with the kinect detection")
 
                     # Still have to figure out which m to take
-                    nose_s = np.array([CameraPoints[int(face[36,1]), int(face[36,0])][0], CameraPoints[int(face[36,1]), int(face[36,0])][1], CameraPoints[int(face[36,1]), int(face[36,0])][2]])
                     
                     cible = face_plan(CameraPoints, face, kinect_position, r, R)
 

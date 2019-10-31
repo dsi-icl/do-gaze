@@ -35,7 +35,7 @@ class Floor:
         v = np.array([0,0,-1])
         u = np.array([self.floorPlane[0], self.floorPlane[1], self.floorPlane[2]])
         s = self.floorPlane[3]
-        vprime = 2*np.dot(u.v)*u + (s*s - np.dot(u,u))*v + 2*s*np.cross(u,v)
+        vprime = 2*np.dot(u,v)*u + (s*s - np.dot(u,u))*v + 2*s*np.cross(u,v)
         if (vprime[0] == 0 and vprime[1] == 0 and vprime[2] == 0):
             return None
         else:
