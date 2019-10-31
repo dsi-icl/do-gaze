@@ -57,20 +57,37 @@ def remove_dop_np(arrn):
     return copy
 
 """
+Solving the quadratic equation related to the gaze position on the GDO
+"""
+
+def solve(a, b, c):
+    d = b**2 - 4*a*c
+
+    if d<0:
+        print("There has been an error")
+        return None
+    elif d == 0:
+        return -b/(2*a)
+    else:
+        m_1 = (-b - math.sqrt(d)) / (2*a)
+        m_2 = (-b + math.sqrt(d)) / (2*a)
+        return m_1, m_2
+
+"""
 Create face plan
 """
-def face_plan(CP, face):
+def face_plan(CP, face, kinect_p, r, rotation_matrix):
     x_0_pre = CP[int(face[36,1]), int(face[36,0])]
     x_1_pre = CP[int(face[45,1]), int(face[45,0])]
     x_1_2_pre = CP[int(face[42,1]), int(face[42,0])]
     y_0_pre = CP[int(face[51,1]), int(face[51,0])]
     y_1_pre = CP[int(face[27,1]), int(face[27,0])]
 
-    x_0 = floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]]))
-    x_1 = floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]]))
-    x_1_2= floor.point_to_transform_space(np.array([x_1_2_pre[0], x_1_2_pre[1], x_1_2_pre[2]]))
-    y_0 = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
-    y_1 = floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]]))
+    x_0 = np.dot(floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]])), rotation_matrix) + kinect_p
+    x_1 = np.dot(floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]])), rotation_matrix) + kinect_p
+    x_1_2= np.dot(floor.point_to_transform_space(np.array([x_1_2_pre[0], x_1_2_pre[1], x_1_2_pre[2]])), rotation_matrix) + kinect_p
+    y_0 = np.dot(floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]])), rotation_matrix) + kinect_p
+    y_1 = np.dot(floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]])), rotation_matrix) + kinect_p
 
     x_s = x_1 - x_0
     x_s = x_s/(np.linalg.norm(x_s))
@@ -80,16 +97,36 @@ def face_plan(CP, face):
 
     left_eye_s = (x_1+x_1_2)//2
 
-    if z_s[2] > 0:
-        z_s = z_s * (-1)
-
-    k = - left_eye_s[2]/z_s[2]
-    cible = left_eye_s + k*z_s
+    a = z_s[0]**2 + z_s[1]**2
+    b = 2*(z_s[0]*left_eye_s[0] + z_s[1]*left_eye_s[1])
+    c = left_eye_s[0]**2 + left_eye_s[1]**2 - r**2
+    k = solve(a, b, c)
+    if len(k) == 2:
+        test = left_eye_s + k[0]*z_s
+        if test[1] > 0:
+            sol = k[0]
+        else:
+            sol = k[1]
+    else:
+        sol = k
+    cible = left_eye_s + sol*z_s
 
     return(cible)
-
+        
 
 if __name__ == '__main__':
+
+    kinect_position = (0, 0, 0)
+
+    # Information about the GDO geometry
+    # Vision span is 313 degrees
+    r = 3
+    theta_node_1 = 3*313*pi/(180*16)
+    theta_node_2 = 313*pi/(180*4)
+    theta_kinect = 123
+    R = np.array([math.cos(theta_kinect), math.sin(theta_kinect), 0], \
+                [- math.sin(theta_kinect), math.cos(theta_kinect), 0], \
+                [0, 0, 1])
 
     kinect = AcquisitionKinect()
     frame = Frame()
@@ -103,8 +140,8 @@ if __name__ == '__main__':
     while timer:
         timerB1 = time.time()
         timeA = timerB1 - timerB
-        if timeA > 30:
-            data_cible = np.array([[0,0,0,0,0]])
+        if timeA > 5:
+            data_cible = np.array([[0,0,0,0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
             image = kinect._frameRGB
@@ -114,7 +151,7 @@ if __name__ == '__main__':
             # print("List of bodies", joint)
             CameraPoints = kinect.cameraPoints
             floor = Floor(kinect._bodies)
-
+            kinect_direction = floor.face_direction()
 
             # OpenCv uses RGB image, kinect returns type RGBA, remove extra dim.
             image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
@@ -154,13 +191,34 @@ if __name__ == '__main__':
                     # The right eye is defined by being the centor of two landmarks
                     # right_eye = (preds[k][45,:] + preds[k][42,:])//2
 
-                    # 
-                    nose_s = np.array([CameraPoints[int(face[36,1]), int(face[36,0])][0], CameraPoints[int(face[36,1]), int(face[36,0])][1], CameraPoints[int(face[36,1]), int(face[36,0])][2]])
-                    face_nb, distance = face_number(joint, nose_s)
-                    
-                    cible = face_plan(CameraPoints, face)
 
-                    data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance]], axis=0)
+                    face_nb, distance = face_number(joint, nose_s)
+                    # getting the coefficient that we will use for the gaze estimation (using only the kinect) 
+                    if kinect_direction not None:
+                        body = np.array([joint[face_nb][0], joint[face_nb][1], joint[face_nb][2]])
+                        body = np.dot(floor.point_to_transform_space(body), R) + kinect_position
+                        kinect_direction = np.dot(kinect_direction, R)
+                        a = kinect_direction[0]**2 + kinect_direction[1]**2
+                        b = 2*(kinect_direction[0]*body[0] + kinect_direction[1]*body[1])
+                        c = body[0]**2 + body[1]**2 - r**2
+                        k = solve(a, b, c)
+                        if len(k) == 2:
+                            test = body + k[0]*kinect_direction
+                            if test[1] > 0:
+                                sol = k[0]
+                            else:
+                                sol = k[1]
+                        else:
+                            sol = k
+                        cible_k = body + sol*kinect_direction
+
+                    # Still have to figure out which m to take
+                    nose_s = np.array([CameraPoints[int(face[36,1]), int(face[36,0])][0], CameraPoints[int(face[36,1]), int(face[36,0])][1], CameraPoints[int(face[36,1]), int(face[36,0])][2]])
+                    
+                    cible = face_plan(CameraPoints, face, kinect_position, r, R)
+
+                    data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance, cible_k[0], cible_k[1], cible_k[2]]], axis=0)
+                    
 
                 data_cible = np.delete(data_cible, 0, 0)
                 data_cible = data_cible[~np.isnan(data_cible).any(axis=1)]
@@ -169,7 +227,7 @@ if __name__ == '__main__':
 
                 message = {}
                 for i in range(len(data_cible)):
-                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2]}
+                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]}
 
                 print("message", message)
                 message = json.dumps(message)
