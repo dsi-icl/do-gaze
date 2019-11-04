@@ -58,6 +58,10 @@ background-color: #444;
             console.log("onmessage", pos)
             for (var key in pos){
                 if (pos.hasOwnProperty(key)){
+                    var d;
+                    var d_k;
+                    var alpha;
+                    var alpha_k;
                     d = Math.sqrt(Math.pow(pos[key].x - screen_x, 2) + Math.pow(pos[key].y - screen_y, 2));
                     d_k = Math.sqrt(Math.pow(pos[key].x_k - screen_x, 2) + Math.pow(pos[key].y_k - screen_y, 2));
                     alpha = Math.asin(d/(2*r));
