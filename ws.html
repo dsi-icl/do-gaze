@@ -67,15 +67,15 @@ background-color: #444;
                     d_k = Math.sqrt(Math.pow(pos[key].x_k - screen_x, 2) + Math.pow(pos[key].y_k - screen_y, 2));
                     alpha = Math.asin(d/(2*r));
                     alpha_k = Math.asin(d_k/(2*r));
-                    document.getElementById('xpos'+key).innerText = Math.round(alpha*l/theta);
-                    document.getElementById('ypos'+key).innerText = Math.round(pos[key].z);
-                    document.getElementById('circle'+key).setAttribute('cx', Math.round(alpha*l/theta));
-                    document.getElementById('circle'+key).setAttribute('cy', Math.round(pos[key].z));
+                    document.getElementById('xpos'+key).innerText = Math.round(alpha*canva_x/theta);
+                    document.getElementById('ypos'+key).innerText = Math.round((2.45 - pos[key].z)*canva_y);
+                    document.getElementById('circle'+key).setAttribute('cx', Math.round(alpha*canva_x/theta));
+                    document.getElementById('circle'+key).setAttribute('cy', Math.round((2.45 - pos[key].z)*canva_y));
 
                     document.getElementById('xpos'+key+'_k').innerText = Math.round(alpha_k*l/theta);
-                    document.getElementById('ypos'+key+'_k').innerText = Math.round(pos[key].z_k);
+                    document.getElementById('ypos'+key+'_k').innerText = Math.round((2.45 - pos[key].z_k)*canva_y);
                     document.getElementById('circle'+key+'_k').setAttribute('cx', Math.round(alpha_k*l/theta));
-                    document.getElementById('circle'+key+'_k').setAttribute('cy', Math.round(pos[key].z_k));
+                    document.getElementById('circle'+key+'_k').setAttribute('cy', Math.round((2.45 - pos[key].z_k)*canva_y));
                 }
             }
             
