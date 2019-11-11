@@ -76,7 +76,6 @@ class AcquisitionKinect():
 		for i in range(0, max_body_count):
 			body = self._bodies.bodies[i]
 			if body.is_tracked:
-				print(i)
 				if self.joint_points3D.size == 0:
 					self.joint_points3D = np.array([[body.joints2[2][1][0],body.joints2[2][1][1],body.joints2[2][1][2]]])
 				else:
