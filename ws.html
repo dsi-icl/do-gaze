@@ -15,31 +15,22 @@ background-color: #444;
         <span>X1 Pos: <em id="xpos1">-</em></span></br>
         <span>Y1 Pos: <em id="ypos1">-</em></span></br>
 
-        <span>X2 Pos: <em id="xpos2">-</em></span></br>
-        <span>Y2 Pos: <em id="ypos2">-</em></span></br>
-
         <span>X0_k Pos: <em id="xpos0_k">-</em></span></br>
         <span>Y0_k Pos: <em id="ypos0_k">-</em></span></br>
 
         <span>X1_k Pos: <em id="xpos1_k">-</em></span></br>
         <span>Y1_k Pos: <em id="ypos1_k">-</em></span></br>
-
-        <span>X2_k Pos: <em id="xpos2_k">-</em></span></br>
-        <span>Y2_k Pos: <em id="ypos2_k">-</em></span></br>
     </div>
     <svg style="position: absolute; top: 0px; left: 0px; border: none; height: 100vh; width: 100vw">
         <circle id="circle0" cx='0' cy='0' r="30" stroke="green" fill="red" />
         <circle id="circle1" cx='0' cy='0' r="30" stroke="red" fill="blue" />
-        <circle id="circle2" cx='0' cy='0' r="30" stroke="yellow" fill="green" />
-        <circle id="circle0_k" cx='0' cy='0' r="30" stroke="cyan" fill="white" />
-        <circle id="circle1_k" cx='0' cy='0' r="30" stroke="green" fill="red" />
-        <circle id="circle2_k" cx='0' cy='0' r="30" stroke="green" fill="red" />
+        <circle id="circle0_k" cx='0' cy='0' r="30" stroke="white" fill="cyan" />
+        <circle id="circle1_k" cx='0' cy='0' r="30" stroke="red" fill="green" />
     </svg>
     <script>
         const coord = new URLSearchParams(window.location.search);
         const screen_x = coord.getAll('x');
         const screen_y = coord.getAll('y');
-        const node_length = coord.getAll('l');
         const theta = coord.getAll('theta');
         const canva_y = document.getElementsByTagName('svg')[0].clientHeight
         const canva_x = document.getElementsByTagName('svg')[0].clientWidth
@@ -67,14 +58,14 @@ background-color: #444;
                     alpha = Math.asin(d/(6));
                     alpha_k = Math.asin(d_k/(6));
                     document.getElementById('xpos'+key).innerText = Math.round(alpha*canva_x/theta);
-                    document.getElementById('ypos'+key).innerText = Math.round((2.45 - pos[key].z)*canva_y);
+                    document.getElementById('ypos'+key).innerText = Math.round((2.55 - pos[key].z)*canva_y);
                     document.getElementById('circle'+key).setAttribute('cx', Math.round(alpha*canva_x/theta));
-                    document.getElementById('circle'+key).setAttribute('cy', Math.round((2.45 - pos[key].z)*canva_y));
+                    document.getElementById('circle'+key).setAttribute('cy', Math.round((2.55 - pos[key].z)*canva_y));
 
                     document.getElementById('xpos'+key+'_k').innerText = Math.round(alpha_k*canva_x/theta);
-                    document.getElementById('ypos'+key+'_k').innerText = Math.round((2.45 - pos[key].z_k)*canva_y);
+                    document.getElementById('ypos'+key+'_k').innerText = Math.round((2.55 - pos[key].z_k)*canva_y);
                     document.getElementById('circle'+key+'_k').setAttribute('cx', Math.round(alpha_k*canva_x/theta));
-                    document.getElementById('circle'+key+'_k').setAttribute('cy', Math.round((2.45 - pos[key].z_k)*canva_y));
+                    document.getElementById('circle'+key+'_k').setAttribute('cy', Math.round((2.55 - pos[key].z_k)*canva_y));
                 }
             }
             
