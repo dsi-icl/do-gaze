@@ -89,6 +89,7 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     y_0 = np.dot(floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]])), rotation_matrix) + kinect_p
     y_1 = np.dot(floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]])), rotation_matrix) + kinect_p
 
+    print("head position according to face_alignment", y_0)
     x_s = x_1 - x_0
     x_s = x_s/(np.linalg.norm(x_s))
     y_s = y_1 - y_0
@@ -102,11 +103,14 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     c = left_eye_s[0]**2 + left_eye_s[1]**2 - r**2
     k = solve(a, b, c)
     if len(k) == 2:
+        print("k face alignment equals 2")
         test = left_eye_s + k[0]*z_s
         if test[1] > 0:
             sol = k[0]
+            print("is it negative", test[1])
         else:
             sol = k[1]
+            print("is it negative", left_eye_s + k[1]*z_s)
     else:
         sol = k
     cible = left_eye_s + sol*z_s
@@ -198,6 +202,7 @@ if __name__ == '__main__':
                         len(kinect_direction)
                         body = np.array([joint[face_nb][0], joint[face_nb][1], joint[face_nb][2]])
                         body = np.dot(floor.point_to_transform_space(body), R) + kinect_position
+                        print("head position according to kinect", body)
                         kinect_direction = np.dot(kinect_direction, R)
                         a = kinect_direction[0]**2 + kinect_direction[1]**2
                         b = 2*(kinect_direction[0]*body[0] + kinect_direction[1]*body[1])
@@ -205,10 +210,13 @@ if __name__ == '__main__':
                         k = solve(a, b, c)
                         if len(k) == 2:
                             test = body + k[0]*kinect_direction
+                            print("k kinect equals 2")
                             if test[1] > 0:
                                 sol = k[0]
+                                print("is it negative", test[1])
                             else:
                                 sol = k[1]
+                                print("is it negative", body + k[1]*kinect_direction)
                         else:
                             sol = k
                         cible_k = body + sol*kinect_direction
