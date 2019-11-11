@@ -87,7 +87,9 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     x_1_pre = floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]]))
     x_1_2_pre = floor.point_to_transform_space(np.array([x_1_2_pre[0], x_1_2_pre[1], x_1_2_pre[2]]))
     y_0_pre = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
-    x_1_pre = floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]]))
+    y_1_pre = floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]]))
+
+    print("head position according to face_alignment", y_0_pre)
 
     x_0 = np.dot(floor.point_to_transform_space(np.array([x_0_pre[2], -x_0_pre[0], x_0_pre[1]])), rotation_matrix) + kinect_p
     x_1 = np.dot(floor.point_to_transform_space(np.array([x_1_pre[2], -x_1_pre[0], x_1_pre[1]])), rotation_matrix) + kinect_p
@@ -126,16 +128,16 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
 
 if __name__ == '__main__':
 
-    kinect_position = (2.63, 1.44, 2.515)
+    kinect_position = (2.63, 1.44, 2.55)
 
     # Information about the GDO geometry
     # Vision span is 313 degrees
     r = 3
     theta_node_1 = 1.02
     theta_node_2 = 1.37
-    theta_kinect = 0.5
-    R = np.array([[math.cos(theta_kinect), -math.sin(theta_kinect), 0], \
-                [math.sin(theta_kinect), math.cos(theta_kinect), 0], \
+    theta_kinect = 0.5+math.pi
+    R = np.array([[math.sin(theta_kinect), math.cos(theta_kinect), 0], \
+                [-math.cos(theta_kinect), math.sin(theta_kinect), 0], \
                 [0, 0, 1]])
 
     kinect = AcquisitionKinect()

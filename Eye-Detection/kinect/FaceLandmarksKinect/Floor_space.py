@@ -39,6 +39,6 @@ class Floor:
         if (vprime[0] == 0 and vprime[1] == 0 and vprime[2] == 0):
             return None
         else:
-            return vprime
+            return np.array([vprime[2], -vprime[0], vprime[1]])
 
 
