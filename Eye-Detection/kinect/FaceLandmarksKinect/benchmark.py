@@ -82,7 +82,9 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     x_1_2_pre = CP[int(face[42,1]), int(face[42,0])]
     y_0_pre = CP[int(face[51,1]), int(face[51,0])]
     y_1_pre = CP[int(face[27,1]), int(face[27,0])]
-    print("head position pre-processed face_alignment")
+
+    test = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
+    print("head position pre-processed face_alignment", test)
 
     x_0 = np.dot(floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]])), rotation_matrix) + kinect_p
     x_1 = np.dot(floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]])), rotation_matrix) + kinect_p
@@ -202,8 +204,9 @@ if __name__ == '__main__':
                     try:
                         len(kinect_direction)
                         body = np.array([joint[face_nb][0], joint[face_nb][1], joint[face_nb][2]])
+                        body = floor.point_to_transform_space(body)
                         print("head position according to kinect preprocessed", body)
-                        body = np.dot(floor.point_to_transform_space(body), R) + kinect_position
+                        body = np.dot(body, R) + kinect_position
                         print("head position according to kinect", body)
                         kinect_direction = np.dot(kinect_direction, R)
                         a = kinect_direction[0]**2 + kinect_direction[1]**2
