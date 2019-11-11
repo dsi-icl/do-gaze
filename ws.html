@@ -56,10 +56,10 @@ background-color: #444;
             console.log("onmessage", pos)
             for (var key in pos){
                 if (pos.hasOwnProperty(key)){
-                    document.getElementById('xpos'+key).innerText = Math.round((pos[key].x - screen_x)*canva_x/1.105);
-                    document.getElementById('ypos'+key).innerText = Math.round((screen_y - pos[key].y)*canva_y/0.633);
-                    document.getElementById('circle'+key).setAttribute('cx', Math.round((pos[key].x - screen_x)*canva_x/1.105));
-                    document.getElementById('circle'+key).setAttribute('cy', Math.round((screen_y - pos[key].y)*canva_y/0.633));
+                    document.getElementById('xposp'+key).innerText = Math.round((pos[key].x - screen_x)*canva_x/1.105);
+                    document.getElementById('yposp'+key).innerText = Math.round((screen_y - pos[key].y)*canva_y/0.633);
+                    document.getElementById('circlep'+key).setAttribute('cx', Math.round((pos[key].x - screen_x)*canva_x/1.105));
+                    document.getElementById('circlep'+key).setAttribute('cy', Math.round((screen_y - pos[key].y)*canva_y/0.633));
                 }
             }
             
