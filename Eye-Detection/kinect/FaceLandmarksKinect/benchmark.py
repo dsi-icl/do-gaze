@@ -83,14 +83,17 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     y_0_pre = CP[int(face[51,1]), int(face[51,0])]
     y_1_pre = CP[int(face[27,1]), int(face[27,0])]
 
-    test = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
-    print("head position pre-processed face_alignment", test)
+    x_0_pre = floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]]))
+    x_1_pre = floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]]))
+    x_1_2_pre = floor.point_to_transform_space(np.array([x_1_2_pre[0], x_1_2_pre[1], x_1_2_pre[2]]))
+    y_0_pre = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
+    x_1_pre = floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]]))
 
-    x_0 = np.dot(floor.point_to_transform_space(np.array([x_0_pre[0], x_0_pre[1], x_0_pre[2]])), rotation_matrix) + kinect_p
-    x_1 = np.dot(floor.point_to_transform_space(np.array([x_1_pre[0], x_1_pre[1], x_1_pre[2]])), rotation_matrix) + kinect_p
-    x_1_2= np.dot(floor.point_to_transform_space(np.array([x_1_2_pre[0], x_1_2_pre[1], x_1_2_pre[2]])), rotation_matrix) + kinect_p
-    y_0 = np.dot(floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]])), rotation_matrix) + kinect_p
-    y_1 = np.dot(floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]])), rotation_matrix) + kinect_p
+    x_0 = np.dot(floor.point_to_transform_space(np.array([x_0_pre[2], -x_0_pre[0], x_0_pre[1]])), rotation_matrix) + kinect_p
+    x_1 = np.dot(floor.point_to_transform_space(np.array([x_1_pre[2], -x_1_pre[0], x_1_pre[1]])), rotation_matrix) + kinect_p
+    x_1_2= np.dot(floor.point_to_transform_space(np.array([x_1_2_pre[2], -x_1_2_pre[0], x_1_2_pre[1]])), rotation_matrix) + kinect_p
+    y_0 = np.dot(floor.point_to_transform_space(np.array([y_0_pre[2], -y_0_pre[0], y_0_pre[1]])), rotation_matrix) + kinect_p
+    y_1 = np.dot(floor.point_to_transform_space(np.array([y_1_pre[2], -y_1_pre[0], y_1_pre[1]])), rotation_matrix) + kinect_p
 
     print("head position according to face_alignment", y_0)
     x_s = x_1 - x_0
@@ -204,8 +207,9 @@ if __name__ == '__main__':
                     try:
                         len(kinect_direction)
                         body = np.array([joint[face_nb][0], joint[face_nb][1], joint[face_nb][2]])
-                        body = floor.point_to_transform_space(body)
-                        print("head position according to kinect preprocessed", body)
+                        trans = floor.point_to_transform_space(body)
+                        body = np.array([trans[2], -trans[0], trans[1]])
+                        print("head position according to kinect preprocessed", trans)
                         body = np.dot(body, R) + kinect_position
                         print("head position according to kinect", body)
                         kinect_direction = np.dot(kinect_direction, R)
