@@ -123,7 +123,7 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
         sol = k
     cible = left_eye_s + sol*z_s
 
-    return(cible)
+    return(cible, z_s)
         
 
 if __name__ == '__main__':
@@ -236,7 +236,8 @@ if __name__ == '__main__':
 
                     # Still have to figure out which m to take
                     
-                    cible = face_plan(CameraPoints, face, kinect_position, r, R)
+                    cible,  dir_face = face_plan(CameraPoints, face, kinect_position, r, R)
+                    print("kinect then face", kinect_direction, dir_face)
 
                     data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance, cible_k[0], cible_k[1], cible_k[2]]], axis=0)
                     
