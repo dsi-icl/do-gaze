@@ -89,8 +89,6 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     y_0_pre = floor.point_to_transform_space(np.array([y_0_pre[0], y_0_pre[1], y_0_pre[2]]))
     y_1_pre = floor.point_to_transform_space(np.array([y_1_pre[0], y_1_pre[1], y_1_pre[2]]))
 
-    print("head position according to face_alignment", y_0_pre)
-
     x_0 = np.dot(floor.point_to_transform_space(np.array([x_0_pre[2], -x_0_pre[0], x_0_pre[1]])), rotation_matrix) + kinect_p
     x_1 = np.dot(floor.point_to_transform_space(np.array([x_1_pre[2], -x_1_pre[0], x_1_pre[1]])), rotation_matrix) + kinect_p
     x_1_2= np.dot(floor.point_to_transform_space(np.array([x_1_2_pre[2], -x_1_2_pre[0], x_1_2_pre[1]])), rotation_matrix) + kinect_p
@@ -111,14 +109,11 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     c = left_eye_s[0]**2 + left_eye_s[1]**2 - r**2
     k = solve(a, b, c)
     if len(k) == 2:
-        print("k face alignment equals 2")
         test = left_eye_s + k[0]*z_s
         if test[1] > 0:
             sol = k[0]
-            print("is it negative", test[1])
         else:
             sol = k[1]
-            print("is it negative", left_eye_s + k[1]*z_s)
     else:
         sol = k
     cible = left_eye_s + sol*z_s
@@ -211,7 +206,6 @@ if __name__ == '__main__':
                         body = np.array([joint[face_nb][0], joint[face_nb][1], joint[face_nb][2]])
                         trans = floor.point_to_transform_space(body)
                         body = np.array([trans[2], -trans[0], trans[1]])
-                        print("head position according to kinect preprocessed", trans)
                         body = np.dot(body, R) + kinect_position
                         print("head position according to kinect", body)
                         kinect_direction = np.dot(kinect_direction, R)
@@ -221,13 +215,10 @@ if __name__ == '__main__':
                         k = solve(a, b, c)
                         if len(k) == 2:
                             test = body + k[0]*kinect_direction
-                            print("k kinect equals 2")
                             if test[1] > 0:
                                 sol = k[0]
-                                print("is it negative", test[1])
                             else:
                                 sol = k[1]
-                                print("is it negative", body + k[1]*kinect_direction)
                         else:
                             sol = k
                         cible_k = body + sol*kinect_direction
@@ -237,7 +228,7 @@ if __name__ == '__main__':
                     # Still have to figure out which m to take
                     
                     cible,  dir_face = face_plan(CameraPoints, face, kinect_position, r, R)
-                    print("kinect then face", kinect_direction, dir_face)
+                    print("kinect divided by face", kinect_direction/dir_face)
 
                     data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance, cible_k[0], cible_k[1], cible_k[2]]], axis=0)
                     
