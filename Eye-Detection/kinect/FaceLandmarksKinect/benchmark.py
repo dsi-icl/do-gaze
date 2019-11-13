@@ -217,8 +217,10 @@ if __name__ == '__main__':
                             test = body + k[0]*kinect_direction
                             if test[1] > 0:
                                 sol = k[0]
+                                print("Look if the y coordinate is positive", test)
                             else:
                                 sol = k[1]
+                                print("Look if the y coordinate is positive", body + k[1]*kinect_direction)
                         else:
                             sol = k
                         cible_k = body + sol*kinect_direction
