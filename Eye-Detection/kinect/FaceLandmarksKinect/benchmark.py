@@ -213,17 +213,22 @@ if __name__ == '__main__':
                         b = 2*(kinect_direction[0]*body[0] + kinect_direction[1]*body[1])
                         c = body[0]**2 + body[1]**2 - r**2
                         k = solve(a, b, c)
-                        if len(k) == 2:
-                            test = body + k[0]*kinect_direction
-                            if test[1] > 0:
-                                sol = k[0]
-                                print("Look if the y coordinate is positive", test)
+
+                        try:
+                            len(k)
+                            if len(k) == 2:
+                                test = body + k[0]*kinect_direction
+                                if test[1] > 0:
+                                    sol = k[0]
+                                    print("Look if the y coordinate is positive", test)
+                                else:
+                                    sol = k[1]
+                                    print("Look if the y coordinate is positive", body + k[1]*kinect_direction)
                             else:
-                                sol = k[1]
-                                print("Look if the y coordinate is positive", body + k[1]*kinect_direction)
-                        else:
-                            sol = k
-                        cible_k = body + sol*kinect_direction
+                                sol = k
+                            cible_k = body + sol*kinect_direction
+                        except TypeError:
+                            print("problem with kinect eye direction estimation")
                     except TypeError:
                         print("problem with the kinect detection")
 
