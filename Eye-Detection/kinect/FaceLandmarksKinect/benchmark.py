@@ -108,15 +108,20 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
     b = 2*(z_s[0]*left_eye_s[0] + z_s[1]*left_eye_s[1])
     c = left_eye_s[0]**2 + left_eye_s[1]**2 - r**2
     k = solve(a, b, c)
-    if len(k) == 2:
-        test = left_eye_s + k[0]*z_s
-        if test[1] > 0:
-            sol = k[0]
+    try:
+        len(k)
+        if len(k) == 2:
+            test = left_eye_s + k[0]*z_s
+            if test[1] > 0:
+                sol = k[0]
+            else:
+                sol = k[1]
         else:
-            sol = k[1]
-    else:
-        sol = k
-    cible = left_eye_s + sol*z_s
+            sol = k
+        cible = left_eye_s + sol*z_s
+    except TypeError:
+        print("problem with face_alignment direction estimation")
+        cible = np.array([0,0,0])
 
     return(cible, z_s)
         
