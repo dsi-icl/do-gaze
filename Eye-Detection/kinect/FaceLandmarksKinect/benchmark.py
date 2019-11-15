@@ -213,7 +213,7 @@ if __name__ == '__main__':
                         body = np.array([trans[2], -trans[0], trans[1]])
                         body = np.dot(body, R) + kinect_position
                         print("head position according to kinect", body)
-                        kinect_direction = np.dot(kinect_direction, R)
+                        kinect_direction = np.dot(kinect_direction, R) + kinect_position
                         a = kinect_direction[0]**2 + kinect_direction[1]**2
                         b = 2*(kinect_direction[0]*body[0] + kinect_direction[1]*body[1])
                         c = body[0]**2 + body[1]**2 - r**2
