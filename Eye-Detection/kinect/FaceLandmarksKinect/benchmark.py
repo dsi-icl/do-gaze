@@ -136,8 +136,8 @@ if __name__ == '__main__':
     theta_node_1 = 1.02
     theta_node_2 = 1.37
     theta_kinect = 2.63
-    R = np.array([[math.cos(theta_kinect), math.sin(theta_kinect), 0], \
-                [-math.sin(theta_kinect), math.cos(theta_kinect), 0], \
+    R = np.array([[math.cos(theta_kinect), -math.sin(theta_kinect), 0], \
+                [math.sin(theta_kinect), math.cos(theta_kinect), 0], \
                 [0, 0, 1]])
 
     kinect = AcquisitionKinect()
