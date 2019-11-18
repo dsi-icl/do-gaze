@@ -216,7 +216,7 @@ if __name__ == '__main__':
                         w = w * (-1)
 
                     left_eye = (face[45,:] + face[42,:])//2
-                    end_line_left = list(map(int, (left_eye + 300 * w)))
+                    end_line_left = list(map(int, (left_eye + 30 * w)))
 
                     cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left[0], end_line_left[1]),
                     (255, 0, 0), 2)
@@ -261,11 +261,6 @@ if __name__ == '__main__':
                     print("kinect divided by face", kinect_direction/dir_face)
 
                     data_cible = np.append(data_cible, [[cible[0], cible[1], cible[2], face_nb, distance, cible_k[0], cible_k[1], cible_k[2]]], axis=0)
-                    kin_norm = normv(kinect_direction)
-                    end_line_left_k = list(map(int, (left_eye + 300 * kin_norm)))
-
-                    cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left_k[0], end_line_left_k[1]),
-                    (0, 255, 0), 2)
                     
 
                 data_cible = np.delete(data_cible, 0, 0)
@@ -275,7 +270,7 @@ if __name__ == '__main__':
 
                 message = {}
                 for i in range(len(data_cible)):
-                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]}
+                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2]}
 
                 print("message", message)
                 message = json.dumps(message)
