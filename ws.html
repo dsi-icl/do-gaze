@@ -49,14 +49,16 @@ background-color: #444;
             console.log("onmessage", pos)
             for (var key in pos){
                 if (pos.hasOwnProperty(key)){
-                    var d;
-                    var alpha;
-                    d = Math.sqrt(Math.pow(pos[key].x - screen_x, 2) + Math.pow(pos[key].y - screen_y, 2));
-                    alpha = Math.asin(d/(6));
-                    document.getElementById('xpos'+key).innerText = Math.round(alpha*canva_x/theta);
-                    document.getElementById('ypos'+key).innerText = Math.round((2.55 - pos[key].z)*canva_y);
-                    document.getElementById('circle'+key).setAttribute('cx', Math.round(alpha*canva_x/theta));
-                    document.getElementById('circle'+key).setAttribute('cy', Math.round((2.55 - pos[key].z)*canva_y));
+                    if (pos[key].x < screen_x){
+                        var d;
+                        var alpha;
+                        d = Math.sqrt(Math.pow(pos[key].x - screen_x, 2) + Math.pow(pos[key].y - screen_y, 2));
+                        alpha = Math.asin(d/(6));
+                        document.getElementById('xpos'+key).innerText = Math.round(alpha*canva_x/theta);
+                        document.getElementById('ypos'+key).innerText = Math.round((2.55 - pos[key].z)*canva_y);
+                        document.getElementById('circle'+key).setAttribute('cx', Math.round(alpha*canva_x/theta));
+                        document.getElementById('circle'+key).setAttribute('cy', Math.round((2.55 - pos[key].z)*canva_y));
+                    }
                 }
             }
             
