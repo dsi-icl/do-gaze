@@ -67,7 +67,7 @@ class AcquisitionKinect():
 	#Get depth from Frame
 	def get_depth_frame(self):
 		self._frameDepth = self._kinect.get_last_depth_frame()
-		self.cameraPoints = self._kinect.color_to_camera(self._frameDepth)
+		self.cameraPoints = self._kinect.depth_to_camera(self._frameDepth)
 		self._frameDepth = self._frameDepth.reshape(((424, 512))).astype(np.uint16)
 		self._frameDepthQuantized = ((self._frameDepth.astype(np.int32)-500)/8.0).astype(np.uint8)
 
@@ -99,7 +99,7 @@ class AcquisitionKinect():
 			depthpoint = PyKinectV2._DepthSpacePoint()
 			depthpoint.x = depthpoints[i][0]
 			depthpoint.y = depthpoints[i][1]
-			space_point = self._kinect.depth_to_camera(depthpoint, depths[i])
+			space_point = self._kinect.depth_point_to_camera(depthpoint, depths[i])
 			points_cam = np.append(points_cam, np.array([space_point.x, space_point.y, space_point.z]))
 		return points_cam
 
