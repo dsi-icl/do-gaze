@@ -17,8 +17,6 @@ import time
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")
 
-def normv(v):
-    return(v / np.linalg.norm(v))
 
 """
 Compute minimal euclidean distance to link a skeleton to a face
@@ -137,7 +135,7 @@ if __name__ == '__main__':
     r = 3
     theta_node_1 = 1.02
     theta_node_2 = 1.37
-    theta_kinect = 2.63
+    theta_kinect = 2.46
     R = np.array([[math.cos(theta_kinect), -math.sin(theta_kinect), 0], \
                 [math.sin(theta_kinect), math.cos(theta_kinect), 0], \
                 [0, 0, 1]])
@@ -205,22 +203,6 @@ if __name__ == '__main__':
                     # The right eye is defined by being the centor of two landmarks
                     # right_eye = (preds[k][45,:] + preds[k][42,:])//2
 
-                    x = face[45,:] - face[36,:]
-                    y = face[27,:] - face[51,:]
-
-                    u = normv(x)
-                    v = normv(y)
-                    w = np.cross(u,v)
-
-                    if w[2] < 0:
-                        w = w * (-1)
-
-                    left_eye = (face[45,:] + face[42,:])//2
-                    end_line_left = list(map(int, (left_eye + 30 * w)))
-
-                    cv2.line(image, (left_eye[0], left_eye[1]), (end_line_left[0], end_line_left[1]),
-                    (255, 0, 0), 2)
-
                     nose_s = np.array([CameraPoints[int(face[36,1]), int(face[36,0])][0], CameraPoints[int(face[36,1]), int(face[36,0])][1], CameraPoints[int(face[36,1]), int(face[36,0])][2]])
                     face_nb, distance = face_number(joint, nose_s)
                     # getting the coefficient that we will use for the gaze estimation (using only the kinect) 
@@ -270,7 +252,7 @@ if __name__ == '__main__':
 
                 message = {}
                 for i in range(len(data_cible)):
-                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2]}
+                    message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]}
 
                 print("message", message)
                 message = json.dumps(message)
@@ -293,11 +275,7 @@ if __name__ == '__main__':
             if timerE > 90:
                 timer = False
 
-            if not image is None:
-			    cv2.imshow("Output-Keypoints",image)
-
             key = cv2.waitKey(1)
             if key == 27:
                 ws.close()
                 break
-                
