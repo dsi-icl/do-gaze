@@ -255,7 +255,7 @@ if __name__ == '__main__':
                 message = {}
                 for i in range(len(data_cible)):
                     message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]}
-                    study = study.append({'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]})
+                    study = study.append({'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]}, ignore_index=True)
 
                 print("message", message)
                 message = json.dumps(message)
@@ -277,6 +277,7 @@ if __name__ == '__main__':
 
             if timerE > 90:
                 timer = False
+                study.to_csv('study')
 
             key = cv2.waitKey(1)
             if key == 27:
