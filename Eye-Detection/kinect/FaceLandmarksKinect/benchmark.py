@@ -149,6 +149,7 @@ if __name__ == '__main__':
     timer = True
     timerB = time.time()
     faces = [0 for i in range(3)]
+    study = pd.DataFrame([],columns=['x', 'y', 'z', 'x_k', 'y_k', 'z_k'])
     while timer:
         timerB1 = time.time()
         timeA = timerB1 - timerB
@@ -254,6 +255,7 @@ if __name__ == '__main__':
                 message = {}
                 for i in range(len(data_cible)):
                     message['{0}'.format(str(i))] = {'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]}
+                    study = study.append({'x':data_cible[i][0], 'y':data_cible[i][1], 'z':data_cible[i][2], 'x_k':data_cible[i][5], 'y_k':data_cible[i][6], 'z_k':data_cible[i][7]})
 
                 print("message", message)
                 message = json.dumps(message)
