@@ -61,7 +61,7 @@ class AcquisitionKinect():
 	#Get an infrared frame object
 	def get_infrared_frame(self):
 	   self._frameIR = self._kinect.get_last_infrared_frame()
-	   self._frameIR = self._frameRGB.reshape((424, 512,-1)).astype(np.uint16)
+	   self._frameIR = self._frameIR.reshape((424, 512,-1)).astype(np.uint16)
 	   self._frameIR = cv2.resize(self._frameIR, (0,0), fx=1/self.resolution_mode, fy=1/self.resolution_mode)
 
 	#Get depth from Frame
