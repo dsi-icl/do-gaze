@@ -156,7 +156,8 @@ if __name__ == '__main__':
             data_cible = np.array([[0,0,0,0,0,0,0,0]])
             kinect.get_frame(frame)
             kinect.get_color_frame()
-            image = kinect._frameRGB
+            kinect.get_infrared_frame()
+            image = kinect._frameIR
             frameDepth = kinect._frameDepth
             kinect.get_eye_camera_space_coord()
             joint = kinect.joint_points3D

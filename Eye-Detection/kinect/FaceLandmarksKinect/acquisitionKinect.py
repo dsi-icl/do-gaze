@@ -22,7 +22,7 @@ class AcquisitionKinect():
 		self._done = False
 
 		# Kinect runtime object, we want only color and body frames
-		self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Body | PyKinectV2.FrameSourceTypes_Depth)
+		self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Infrared | PyKinectV2.FrameSourceTypes_Body | PyKinectV2.FrameSourceTypes_Depth)
 
 		# here we will store skeleton data
 		self._bodies = None
@@ -33,6 +33,7 @@ class AcquisitionKinect():
 		self.joint_state = np.array([])
 
 		self._frameRGB = None
+		self._frameIR = None
 		self._frameDepth = None
 		self._frameDepthQuantized = None
 		self._frameSkeleton = None
@@ -46,6 +47,7 @@ class AcquisitionKinect():
 		self.frameNum += 1
 
 		frame.frameRGB = self._frameRGB
+		frame.frameIR = self._frameIR
 		frame.frameDepth = self._frameDepth
 		frame.frameDepthQuantized = self._frameDepthQuantized
 		frame.frameSkeleton = self._frameSkeleton
@@ -55,6 +57,12 @@ class AcquisitionKinect():
 	   self._frameRGB = self._kinect.get_last_color_frame()
 	   self._frameRGB = self._frameRGB.reshape((1080, 1920,-1)).astype(np.uint8)
 	   self._frameRGB = cv2.resize(self._frameRGB, (0,0), fx=1/self.resolution_mode, fy=1/self.resolution_mode)
+
+	#Get an infrared frame object
+	def get_infrared_frame(self):
+	   self._frameIR = self._kinect.get_last_infrared_frame()
+	   self._frameIR = self._frameRGB.reshape((424, 512,-1)).astype(np.uint16)
+	   self._frameIR = cv2.resize(self._frameIR, (0,0), fx=1/self.resolution_mode, fy=1/self.resolution_mode)
 
 	#Get depth from Frame
 	def get_depth_frame(self):
@@ -103,6 +111,7 @@ class AcquisitionKinect():
 		if self._kinect.has_new_color_frame() & self._kinect.has_new_depth_frame():
 			self.get_color_frame()
 			self.get_depth_frame()
+			self.get_infrared_frame()
 			
 	def close(self):
 		self._kinect.close()
