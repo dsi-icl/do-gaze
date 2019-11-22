@@ -128,7 +128,7 @@ def face_plan(CP, face, kinect_p, r, rotation_matrix):
 
 if __name__ == '__main__':
 
-    kinect_position = (1.79, 1.45, 0.2)
+    kinect_position = (2.33, 1.89, 0.2)
 
     # Information about the GDO geometry
     # Vision span is 313 degrees
