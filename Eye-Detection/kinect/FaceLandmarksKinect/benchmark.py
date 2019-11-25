@@ -1,17 +1,13 @@
 import cv2
 import numpy as np
-from pykinect2 import PyKinectV2
-from pykinect2.PyKinectV2 import *
 from pykinect2 import PyKinectRuntime
 from acquisitionKinect import AcquisitionKinect
 from Floor_space import Floor
 from frame import Frame
 import face_alignment
-from skimage import io
 import json
 import math
 import websocket
-import pandas as pd
 import time
 
 ws = websocket.WebSocket()
