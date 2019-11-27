@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from pykinect2 import PyKinectRuntime
 from acquisitionKinect import AcquisitionKinect
 from Floor_space import Floor
 from frame import Frame

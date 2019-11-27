@@ -7,9 +7,6 @@ from acquisitionKinect import AcquisitiaonKinect
 from Floor_space import Floor
 from frame import Frame
 import face_alignment
-from skimage import io
-import json
-import math
 import websocket
 import pandas as pd
 

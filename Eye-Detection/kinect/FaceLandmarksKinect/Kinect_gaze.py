@@ -7,7 +7,6 @@ from acquisitionKinect import AcquisitionKinect
 from frame import Frame
 import face_alignment
 from skimage import io
-import json
 import websocket
 import pandas as pd
 
