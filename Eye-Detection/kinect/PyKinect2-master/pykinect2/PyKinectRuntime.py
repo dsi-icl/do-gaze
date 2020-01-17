@@ -464,6 +464,7 @@ class KinectBody(object):
             joints = ctypes.cast(joints_data_type(), ctypes.POINTER(PyKinectV2._Joint))
             body.GetJoints(PyKinectV2.JointType_Count, joints)
             self.joints = joints
+            self.joints2 = numpy.copy(numpy.ctypeslib.as_array(joints, shape=(joints_capacity.value,)))
 
             joint_orientations = ctypes.POINTER(PyKinectV2._JointOrientation)
             joint_orientations_data_type = PyKinectV2._JointOrientation * joints_capacity.value
@@ -490,5 +491,3 @@ class KinectBodyFrameData(object):
         res.relative_time = self.relative_time
         res.bodies = numpy.copy(self.bodies)
         return res 
-       
-      
