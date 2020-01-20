@@ -283,13 +283,11 @@ class PyKinectRuntime(object):
             else:
                 return None
 
-
     def body_joint_to_color_space(self, joint): 
         return self._mapper.MapCameraPointToColorSpace(joint.Position) 
 
     def body_joint_to_depth_space(self, joint): 
         return self._mapper.MapCameraPointToDepthSpace(joint.Position) 
-
 
     def body_joints_to_color_space(self, joints):
         joint_points = numpy.ndarray((PyKinectV2.JointType_Count), dtype=numpy.object)
@@ -298,6 +296,33 @@ class PyKinectRuntime(object):
             joint_points[j] = self.body_joint_to_color_space(joints[j])
 
         return joint_points
+
+    def test_reverse(self, camera_space_point):
+        csp = camera_space_point
+        color_point = PyKinectV2._ColorSpacePoint()
+        self._mapper.MapCameraPointsToColorSpace(1,csp,1,color_point)
+        return color_point
+    
+    def color_to_camera(self, depthframe_):
+        ptr_depth = numpy.ctypeslib.as_ctypes(depthframe_.flatten())
+        S = 1920*1080
+        mappedPoints = numpy.ones(S, dtype=numpy.dtype(PyKinectV2._CameraSpacePoint))
+        csps1 = mappedPoints.ctypes.data_as(ctypes.POINTER(PyKinectV2._CameraSpacePoint))
+        self._mapper.MapColorFrameToCameraSpace(217088, ptr_depth, 2073600, csps1)
+        mappedPoints = mappedPoints.reshape((1080,1920))
+        return(mappedPoints)
+
+    def depth_to_camera(self, depthframe_):
+        ptr_depth = numpy.ctypeslib.as_ctypes(depthframe_.flatten())
+        S = 512*424
+        mappedPoints = numpy.ones(S, dtype=numpy.dtype(PyKinectV2._CameraSpacePoint))
+        csps1 = mappedPoints.ctypes.data_as(ctypes.POINTER(PyKinectV2._CameraSpacePoint))
+        self._mapper.MapDepthFrameToCameraSpace(217088, ptr_depth, 217088, csps1)
+        mappedPoints = mappedPoints.reshape((424,512))
+        return(mappedPoints)
+    
+    def depth_point_to_camera(self, depthpoint, depth):
+        return self._mapper.MapDepthPointToCameraSpace(depthpoint, depth)
 
     def body_joints_to_depth_space(self, joints):
         joint_points = numpy.ndarray((PyKinectV2.JointType_Count), dtype=numpy.object)
@@ -464,6 +489,7 @@ class KinectBody(object):
             joints = ctypes.cast(joints_data_type(), ctypes.POINTER(PyKinectV2._Joint))
             body.GetJoints(PyKinectV2.JointType_Count, joints)
             self.joints = joints
+            self.joints2 = numpy.copy(numpy.ctypeslib.as_array(joints, shape=(joints_capacity.value,)))
 
             joint_orientations = ctypes.POINTER(PyKinectV2._JointOrientation)
             joint_orientations_data_type = PyKinectV2._JointOrientation * joints_capacity.value
@@ -490,5 +516,3 @@ class KinectBodyFrameData(object):
         res.relative_time = self.relative_time
         res.bodies = numpy.copy(self.bodies)
         return res 
-       
-      
