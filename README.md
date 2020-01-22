@@ -11,7 +11,7 @@ git clone https://github.com/dsi-icl/gdo-gaze.git
 ```
 
 ### Requirements
-This project was developped using [Anaconda](https://www.anaconda.com/distribution/) but it is not mandatory.
+This project was developped using [Anaconda](https://www.anaconda.com/distribution/).
 
 * Python 3.5+ or Python 2.7
 * Linux, Windows or macOS
@@ -21,7 +21,7 @@ This project was developped using [Anaconda](https://www.anaconda.com/distributi
 * Opencv
 * Pykinect2:
     1. pip install comtypes
-    2. [Install the Kinect for Windows SDK v2](https://www.microsoft.com/en-gb/download/details.aspx?id=44561)
+    2. Install the [Kinect for Windows SDK v2](https://www.microsoft.com/en-gb/download/details.aspx?id=44561)
     3. pip install pykinect2
 
 :exclamation: Use pip in the following directory 
