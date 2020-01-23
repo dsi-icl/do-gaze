@@ -8,6 +8,7 @@ import json
 import math
 import websocket
 import time
+import pandas as pd
 
 ws = websocket.WebSocket()
 ws.connect("wss://gdo-gaze.dsi.ic.ac.uk")

@@ -211,7 +211,6 @@ class PyKinectRuntime(object):
        return bytes
 
     def has_new_color_frame(self):
-        print(self._last_color_frame_time, self._last_color_frame_access)
         has = (self._last_color_frame_time > self._last_color_frame_access)
         return has
 
@@ -312,8 +311,17 @@ class PyKinectRuntime(object):
         self._mapper.MapColorFrameToCameraSpace(217088, ptr_depth, 2073600, csps1)
         mappedPoints = mappedPoints.reshape((1080,1920))
         return(mappedPoints)
+
+    def depth_to_camera(self, depthframe_):
+        ptr_depth = numpy.ctypeslib.as_ctypes(depthframe_.flatten())
+        S = 512*424
+        mappedPoints = numpy.ones(S, dtype=numpy.dtype(PyKinectV2._CameraSpacePoint))
+        csps1 = mappedPoints.ctypes.data_as(ctypes.POINTER(PyKinectV2._CameraSpacePoint))
+        self._mapper.MapDepthFrameToCameraSpace(217088, ptr_depth, 217088, csps1)
+        mappedPoints = mappedPoints.reshape((424,512))
+        return(mappedPoints)
     
-    def depth_to_camera(self, depthpoint, depth):
+    def depth_point_to_camera(self, depthpoint, depth):
         return self._mapper.MapDepthPointToCameraSpace(depthpoint, depth)
 
     def body_joints_to_depth_space(self, joints):
