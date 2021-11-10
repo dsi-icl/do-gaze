@@ -1,5 +1,7 @@
 # GDO-GAZE Project
 
+[Report](Report.pdf)
+
 **GDO-GAZE** is a gaze estimation software using a kinect (hopefully multiple kinects soon) and a face recognition library. It is developped in Python and requires a GPUn for optimal performance.
 
 
