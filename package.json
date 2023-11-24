@@ -10,7 +10,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "lerna": "^3.15.0"
+    "lerna": "^8.0.0"
   },
   "scripts": {
     "start": "node ./index.js"
